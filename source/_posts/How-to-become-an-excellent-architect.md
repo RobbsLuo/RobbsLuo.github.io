@@ -5,7 +5,7 @@ tags:
   - Architect
   - Humanity
 categories:
-  - Architecture
+  - Architect
 description: 成为一个架构师需要具备什么能力呢？该如何努力才能成为一个优秀的架构师？
 ---
 
