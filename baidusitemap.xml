@@ -49,30 +49,6 @@
     
     
   <url>
-    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
-    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
-    <data>
-        <display>
-        <title>Mac OS 下安装 rbenv</title>
-        <pubTime>2016-12-26T08:41:17.000Z</pubTime>
-        
-        <tag>rbenv</tag>
-         
-        <tag>brew</tag>
-         
-        <tag>ruby</tag>
-         
-         
-           
-             
-              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.robbs.win/2016-10-12/gem-note.html</loc>
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     <data>
@@ -90,6 +66,32 @@
            
              
               <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>使用 Mina 部署 Yii2 项目</title>
+        <pubTime>2016-10-25T15:03:20.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Yii2</tag>
+         
+        <tag>Mina</tag>
+         
+        <tag>Deploy</tag>
+         
+         
+           
+             
+              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
           
         </display>
     </data>
@@ -121,25 +123,23 @@
 
     
   <url>
-    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     <data>
         <display>
-        <title>使用 Mina 部署 Yii2 项目</title>
-        <pubTime>2016-10-25T15:03:20.000Z</pubTime>
+        <title>Mac OS 下安装 rbenv</title>
+        <pubTime>2016-12-26T08:41:17.000Z</pubTime>
         
-        <tag>PHP</tag>
+        <tag>rbenv</tag>
          
-        <tag>Yii2</tag>
+        <tag>brew</tag>
          
-        <tag>Mina</tag>
-         
-        <tag>Deploy</tag>
+        <tag>ruby</tag>
          
          
            
              
-              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
           
         </display>
     </data>
@@ -493,28 +493,6 @@
 
     
   <url>
-    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
-    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
-    <data>
-        <display>
-        <title>如何才能成为一个优秀架构师</title>
-        <pubTime>2018-05-10T01:46:38.000Z</pubTime>
-        
-        <tag>Architect</tag>
-         
-        <tag>Humanity</tag>
-         
-         
-           
-             
-              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.robbs.win/2016-10-25/Create-Yii2-Project.html</loc>
     <lastmod>2018-05-28T03:07:55.853Z</lastmod>
     <data>
@@ -552,6 +530,28 @@
            
              
               <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
+    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
+    <data>
+        <display>
+        <title>如何才能成为一个优秀架构师</title>
+        <pubTime>2018-05-10T01:46:38.000Z</pubTime>
+        
+        <tag>Architect</tag>
+         
+        <tag>Humanity</tag>
+         
+         
+           
+             
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
           
         </display>
     </data>
