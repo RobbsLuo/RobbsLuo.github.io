@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-06-05/MicroService-Deployment.html</loc>
+    <lastmod>2018-06-11T01:54:33.365Z</lastmod>
+    <data>
+        <display>
+        <title>微服务部署：蓝绿部署滚动部署灰度发布金丝雀发布</title>
+        <pubTime>2018-06-05T01:49:21.000Z</pubTime>
+        
+        <tag>Deployment</tag>
+         
+        <tag>MicroService</tag>
+         
+         
+           
+             
+              <breadCrumb title="DevOps" url="http://www.robbs.win/categories/DevOps/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>使用 Mina 部署 Yii2 项目</title>
+        <pubTime>2016-10-25T15:03:20.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Yii2</tag>
+         
+        <tag>Mina</tag>
+         
+        <tag>Deploy</tag>
+         
+         
+           
+             
+              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-12/gem-note.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>GEM 笔记</title>
+        <pubTime>2016-10-12T07:44:28.000Z</pubTime>
+        
+        <tag>Software</tag>
+         
+        <tag>Ruby</tag>
+         
+        <tag>GEM</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>Mac OS 下安装 rbenv</title>
+        <pubTime>2016-12-26T08:41:17.000Z</pubTime>
+        
+        <tag>rbenv</tag>
+         
+        <tag>brew</tag>
+         
+        <tag>ruby</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>Ubuntu 下增加 Swap</title>
+        <pubTime>2016-10-21T02:29:11.000Z</pubTime>
+        
+        <tag>Ubuntu</tag>
+         
+        <tag>Server</tag>
+         
+        <tag>Swap</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html</loc>
+    <lastmod>2018-05-28T03:07:55.870Z</lastmod>
+    <data>
+        <display>
+        <title>唯品会运维标准化建设之路</title>
+        <pubTime>2018-05-18T06:22:00.000Z</pubTime>
+        
+        <tag>DevOps</tag>
+         
+        <tag>VIPS</tag>
+         
+         
+           
+             
+              <breadCrumb title="DevOps" url="http://www.robbs.win/categories/DevOps/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
+    <lastmod>2018-05-28T03:07:55.860Z</lastmod>
+    <data>
+        <display>
+        <title>谈谈架构</title>
+        <pubTime>2018-05-16T03:26:29.000Z</pubTime>
+        
+        <tag>Architect</tag>
+         
+        <tag>Humanity</tag>
+         
+         
+           
+             
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-09-30/Software-PPA-Sources.html</loc>
+    <lastmod>2018-05-28T03:07:55.860Z</lastmod>
+    <data>
+        <display>
+        <title>常用的软件 PPA 源</title>
+        <pubTime>2016-09-30T03:40:37.000Z</pubTime>
+        
+        <tag>Software</tag>
+         
+        <tag>Ubuntu</tag>
+         
+        <tag>PPA</tag>
+         
+        <tag>Sources</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-24/Siege.html</loc>
+    <lastmod>2018-05-28T03:07:55.860Z</lastmod>
+    <data>
+        <display>
+        <title>Siege 简介</title>
+        <pubTime>2016-10-24T06:46:29.000Z</pubTime>
+        
+        <tag>Server</tag>
+         
+        <tag>Siege</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
+    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
+    <data>
+        <display>
+        <title>PHP-FPM 进程管理模式简介</title>
+        <pubTime>2016-10-10T08:02:10.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Server</tag>
+         
+        <tag>Process Manager</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-11-18/Raiils-Cache-Simple.html</loc>
+    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
+    <data>
+        <display>
+        <title>Rails 缓存简介</title>
+        <pubTime>2016-11-18T08:32:38.000Z</pubTime>
+        
+        <tag>Ruby</tag>
+         
+        <tag>Cache</tag>
+         
+        <tag>Rails</tag>
+         
+         
+           
+             
+              <breadCrumb title="Rails" url="http://www.robbs.win/categories/Rails/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html</loc>
+    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
+    <data>
+        <display>
+        <title>PHP 注意事项</title>
+        <pubTime>2016-10-20T03:08:57.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Tips</tag>
+         
+         
+           
+             
+              <breadCrumb title="PHP" url="http://www.robbs.win/categories/PHP/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-09-23/Linux-common-shells.html</loc>
+    <lastmod>2018-05-28T03:07:55.855Z</lastmod>
+    <data>
+        <display>
+        <title>Linux 常用命令</title>
+        <pubTime>2016-09-23T11:14:35.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+        <tag>Shell</tag>
+         
+         
+           
+             
+              <breadCrumb title="Linux" url="http://www.robbs.win/categories/Linux/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-12-26/Mac-OSX-Basic-SoftWare.html</loc>
+    <lastmod>2018-05-28T03:07:55.855Z</lastmod>
+    <data>
+        <display>
+        <title>Mac OS 基础软件</title>
+        <pubTime>2016-12-26T08:39:02.000Z</pubTime>
+        
+        <tag>Software</tag>
+         
+        <tag>OSX</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-05-17/Oauth2.html</loc>
+    <lastmod>2018-05-28T03:07:55.855Z</lastmod>
+    <data>
+        <display>
+        <title>理解OAuth 2.0</title>
+        <pubTime>2018-05-17T07:20:46.000Z</pubTime>
+        
+        <tag>Architect</tag>
+         
+        <tag>OAuth</tag>
+         
+         
+           
+             
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2017-01-19/Install-And-Deploy-AirFlow.html</loc>
+    <lastmod>2018-05-28T03:07:55.854Z</lastmod>
+    <data>
+        <display>
+        <title>安装和部署AirFlow</title>
+        <pubTime>2017-01-19T08:44:02.000Z</pubTime>
+        
+        <tag>Server</tag>
+         
+        <tag>AirFlow</tag>
+         
+        <tag>Supervisord</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-11-08/Install-Shadowsocks-Server.html</loc>
+    <lastmod>2018-05-28T03:07:55.854Z</lastmod>
+    <data>
+        <display>
+        <title>安装 Shadowsocks 服务器端</title>
+        <pubTime>2016-11-08T02:23:20.000Z</pubTime>
+        
+        <tag>Server</tag>
+         
+        <tag>Shadowsocks</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
+    <lastmod>2018-05-28T03:07:55.854Z</lastmod>
+    <data>
+        <display>
+        <title>Ubuntu16.04 安装Nginx、PHP7、MySQL5.7</title>
+        <pubTime>2016-09-30T04:04:51.000Z</pubTime>
+        
+        <tag>Ubuntu</tag>
+         
+        <tag>Nginx</tag>
+         
+        <tag>Server</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2017-04-25/Install-MongoDB-on-ubuntu16-04.html</loc>
+    <lastmod>2018-05-28T03:07:55.854Z</lastmod>
+    <data>
+        <display>
+        <title>Ubuntu16.04 安装 MongoDB</title>
+        <pubTime>2017-04-25T07:03:36.000Z</pubTime>
+        
+        <tag>Ubuntu</tag>
+         
+        <tag>MongoDB</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-11/Https-Nginx.html</loc>
+    <lastmod>2018-05-28T03:07:55.854Z</lastmod>
+    <data>
+        <display>
+        <title>采用Let's Encrypt 证书在Nginx上实现 HTTPS</title>
+        <pubTime>2016-10-11T03:09:50.000Z</pubTime>
+        
+        <tag>Ubuntu</tag>
+         
+        <tag>HTTPS</tag>
+         
+        <tag>Nginx</tag>
+         
+        <tag>Server</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</loc>
+    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
+    <data>
+        <display>
+        <title>Ubuntu 上安装使用 DynamoDB</title>
+        <pubTime>2016-11-16T02:28:46.000Z</pubTime>
+        
+        <tag>DynamoDB</tag>
+         
+        <tag>Software</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-25/Create-Yii2-Project.html</loc>
+    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
+    <data>
+        <display>
+        <title>创建 Yii2 项目</title>
+        <pubTime>2016-10-25T14:07:50.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Yii2</tag>
+         
+         
+           
+             
+              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
+    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
+    <data>
+        <display>
+        <title>如何才能成为一个优秀架构师</title>
+        <pubTime>2018-05-10T01:46:38.000Z</pubTime>
+        
+        <tag>Architect</tag>
+         
+        <tag>Humanity</tag>
+         
+         
+           
+             
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2018-05-14/Container-Application-Design.html</loc>
+    <lastmod>2018-05-28T03:07:55.845Z</lastmod>
+    <data>
+        <display>
+        <title>基于容器应用设计的原则，模式和反模式</title>
+        <pubTime>2018-05-14T02:24:02.000Z</pubTime>
+        
+        <tag>Architect</tag>
+         
+        <tag>Container</tag>
+         
+         
+           
+             
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2017-05-01/Aliyun-Open-IPv6.html</loc>
+    <lastmod>2018-05-28T03:07:55.845Z</lastmod>
+    <data>
+        <display>
+        <title>阿里云开启 IPv6 支持</title>
+        <pubTime>2017-05-01T15:36:43.000Z</pubTime>
+        
+        <tag>Aliyun</tag>
+         
+        <tag>IPv6</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
+          
+        </display>
+    </data>
+    </url>
+
+</urlset>

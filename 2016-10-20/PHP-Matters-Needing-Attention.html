@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="整理了一些平时在PHP开发过程中一些需要注意的东西，它们可以在一定程度上使程序运行的更快，更稳定。 | PHP 注意事项 | Robbs的个人博客，记录平时在学习实践过程中的一些问题、方法、文档等等。"><meta name="google-site-verification" content="OmbQ9_n-tW8ZNqddXapHuJQjObfs39Bp4bTzrmUJ59g"><title>PHP 注意事项 | Robbs</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.01"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">PHP 注意事项</h1><a id="logo" href="/.">Robbs</a><p class="description">己所不欲，勿施于人</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">PHP 注意事项</h1><div class="post-meta">Oct 20, 2016<span> | </span><span class="category"><a href="/categories/PHP/">PHP</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ol>
+<li><h4 id="尽量静态化"><a href="#尽量静态化" class="headerlink" title="尽量静态化"></a>尽量静态化</h4><p> 如果函数可以静态化，就尽量静态化。<br>区别主要体现是内存的处理上，静态方法在程序开始的时候分配内存，而实例方法在实例化的时候才会分配内存。<br>静态方法可以直接调用，而实例方法要先生成实例，在通过实例调用。</p>
+<blockquote>
+<p>静态方法过多，会占用内存</p>
+</blockquote>
+</li>
+<li><h4 id="echo-VS-print"><a href="#echo-VS-print" class="headerlink" title="echo VS print"></a>echo VS print</h4><p>echo的性能高于print，因为echo没有返回值，而print返回一个整型</p>
+<blockquote>
+<p>echo 大字符串的时候需要在服务器进行对应的配置 </p>
+</blockquote>
+</li>
+<li><h4 id="echo-多个字符串"><a href="#echo-多个字符串" class="headerlink" title="echo 多个字符串"></a>echo 多个字符串</h4><p>echo 多个字符串是采用<code>,</code>代替<code>.</code>来连接字符串</p>
+</li>
+<li><h4 id="错误屏蔽"><a href="#错误屏蔽" class="headerlink" title="@ 错误屏蔽"></a>@ 错误屏蔽</h4><p>用 @ 掩盖错误会降低脚本运行速度，特别是不要在循环中使用@。</p>
+</li>
+<li><h4 id="row-‘id’-amp-row-id-amp-row-1"><a href="#row-‘id’-amp-row-id-amp-row-1" class="headerlink" title="$row[‘id’] &amp; $row[id] &amp; $row[1]"></a>$row[‘id’] &amp; $row[id] &amp; $row[1]</h4><p> <code>&#39;id&#39;</code>会直接查找key为<code>&#39;id&#39;</code>d的值，而没有引号如变量、常量在解析的时候会先判断类型在取值。</p>
+</li>
+<li><h4 id="isset-amp-empty"><a href="#isset-amp-empty" class="headerlink" title="isset() &amp; empty()"></a>isset() &amp; empty()</h4><p>isset()是测试变量是否被赋值。<br>empty()是测试变量是否为空，该变量已经赋值。如果变量没被赋值就引用是被允许的,但会有notice提示。</p>
+<blockquote>
+<p>如果变量被赋予空值 <code>$t = &quot;&quot;; $t = 0; $t = false;</code>，<code>empty($t)</code>返回真，<code>isset($t)</code>也返回真。<br>如果要注销一个变量采用 <code>unset($t)</code> <code>$t = NULL</code></p>
+</blockquote>
+</li>
+<li><h4 id="循环前确认最大次数"><a href="#循环前确认最大次数" class="headerlink" title="循环前确认最大次数"></a>循环前确认最大次数</h4><p> 在执行for循环前确认最大字数，不要每次循环的时候都重新计算最大值。</p>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//不要这样做</span></span><br><span class="line"><span class="keyword">for</span> ($i=<span class="number">0</span>;$i&lt;=count($array);$i++)&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//应该这样做</span></span><br><span class="line">$len = count($array);</span><br><span class="line"><span class="keyword">for</span> ($i=<span class="number">0</span>;$i&lt;=$len;$i++)&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="include-amp-include-once-amp-require-amp-require-once"><a href="#include-amp-include-once-amp-require-amp-require-once" class="headerlink" title="include() &amp; include_once() &amp; require() &amp; require_once()"></a>include() &amp; include_once() &amp; require() &amp; require_once()</h4><p>功能是一致的都是加载文件，<code>_once</code>是在加载文件前判断该文件是否已经被加载过了，避免重复加载。<br>主要区别</p>
+<ul>
+<li>错误处理机制<ul>
+<li><code>require()</code> 如果不存在文件时，会抛出<code>fatal error</code>脚本终止运行。</li>
+<li><code>include()</code> 如果不存在文件时，会抛出<code>warning</code>但脚本继续运行。</li>
+</ul>
+</li>
+<li>性能<ul>
+<li><code>require()</code> 文件只处理一次 (实际上，文件内容替换了require()语句)。</li>
+<li><code>include()</code> 执行时文件每次都要进行读取和评估。<br>如果有包含这些指令之一的代码和可能执行多次的代码，则使用<code>require()</code>效率比较高。</li>
+</ul>
+</li>
+<li><p>使用弹性</p>
+<ul>
+<li><code>require()</code> 通常放在脚本的最前面，脚本在执行前，会先载入所指定引入的文件，使它变成脚本的一部份。</li>
+<li><code>include()</code> 通常放在流程控制的处理区段中。脚本在读到文件时，才将它载进来。这种方式，可以把执行时的流程简单化。</li>
+</ul>
+<blockquote>
+<p>包含文件时使用完整路径，减少解析路径所需的时间。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><h4 id="‘-‘-amp-“-“"><a href="#‘-‘-amp-“-“" class="headerlink" title="‘ ‘ &amp; “ “"></a>‘ ‘ &amp; “ “</h4><p> PHP 允许使用单引号和双引号来封装字符串变量。<br> <code>&quot; &quot;</code> 先读取字符串内容，再查找其中的变量，并进行赋值。</p>
+</li>
+<li><h4 id="不要随便复制变量"><a href="#不要随便复制变量" class="headerlink" title="不要随便复制变量"></a>不要随便复制变量</h4><p> 把变量复制到另一个变量会增加一倍的内存消耗。</p>
+</li>
+<li><h4 id="if-else-amp-switch-case"><a href="#if-else-amp-switch-case" class="headerlink" title="if else &amp; switch case"></a>if else &amp; switch case</h4><p> switch case好于使用多个if，else if语句，并且代码更加容易阅读和维护。</p>
+</li>
+<li><h4 id="并不是事必面向对象"><a href="#并不是事必面向对象" class="headerlink" title="并不是事必面向对象"></a>并不是事必面向对象</h4><p> 面向对象往往开销很大，每个方法和对象的调用都会消耗内存。</p>
+</li>
+<li><h4 id="不要把方法细分得过多"><a href="#不要把方法细分得过多" class="headerlink" title="不要把方法细分得过多"></a>不要把方法细分得过多</h4><p> 每个方法的调用都会消耗内存。</p>
+</li>
+<li><h4 id="尽量采用的PHP内置函数"><a href="#尽量采用的PHP内置函数" class="headerlink" title="尽量采用的PHP内置函数"></a>尽量采用的PHP内置函数</h4></li>
+<li><h4 id="循环内部不要声明变量，尤其是大变量：对象"><a href="#循环内部不要声明变量，尤其是大变量：对象" class="headerlink" title="循环内部不要声明变量，尤其是大变量：对象"></a>循环内部不要声明变量，尤其是大变量：对象</h4></li>
+<li><h4 id="销毁变量释放内存，特别是大的数组"><a href="#销毁变量释放内存，特别是大的数组" class="headerlink" title="销毁变量释放内存，特别是大的数组"></a>销毁变量释放内存，特别是大的数组</h4></li>
+<li><h4 id="字符串函数代替正则表达式。"><a href="#字符串函数代替正则表达式。" class="headerlink" title="字符串函数代替正则表达式。"></a>字符串函数代替正则表达式。</h4></li>
+<li><h4 id="split比exploade快"><a href="#split比exploade快" class="headerlink" title="split比exploade快"></a>split比exploade快</h4></li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.01" async></script><a data-url="http://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html" data-id="cji9lsmaz000wcnv4gwd0au5p" class="article-share-link">分享到</a><div class="tags"><a href="/tags/PHP/">PHP</a><a href="/tags/Tips/">Tips</a></div><div class="post-nav"><a href="/2016-10-21/Ubuntu-Swap.html" class="pre">Ubuntu 下增加 Swap</a><a href="/2016-10-12/gem-note.html" class="next">GEM 笔记</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Architect/">Architect</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DevOps/">DevOps</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Develop/">Develop</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rails/">Rails</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Server/">Server</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Software/">Software</a><span class="category-list-count">6</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/MicroService/" style="font-size: 15px;">MicroService</a> <a href="/tags/Aliyun/" style="font-size: 15px;">Aliyun</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/Yii2/" style="font-size: 15px;">Yii2</a> <a href="/tags/DynamoDB/" style="font-size: 15px;">DynamoDB</a> <a href="/tags/Software/" style="font-size: 15px;">Software</a> <a href="/tags/Architect/" style="font-size: 15px;">Architect</a> <a href="/tags/Humanity/" style="font-size: 15px;">Humanity</a> <a href="/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/Server/" style="font-size: 15px;">Server</a> <a href="/tags/AirFlow/" style="font-size: 15px;">AirFlow</a> <a href="/tags/Supervisord/" style="font-size: 15px;">Supervisord</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/Shadowsocks/" style="font-size: 15px;">Shadowsocks</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Shell/" style="font-size: 15px;">Shell</a> <a href="/tags/OSX/" style="font-size: 15px;">OSX</a> <a href="/tags/Deployment/" style="font-size: 15px;">Deployment</a> <a href="/tags/IPv6/" style="font-size: 15px;">IPv6</a> <a href="/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/tags/Ruby/" style="font-size: 15px;">Ruby</a> <a href="/tags/Cache/" style="font-size: 15px;">Cache</a> <a href="/tags/Rails/" style="font-size: 15px;">Rails</a> <a href="/tags/Siege/" style="font-size: 15px;">Siege</a> <a href="/tags/PPA/" style="font-size: 15px;">PPA</a> <a href="/tags/Sources/" style="font-size: 15px;">Sources</a> <a href="/tags/Process-Manager/" style="font-size: 15px;">Process Manager</a> <a href="/tags/Swap/" style="font-size: 15px;">Swap</a> <a href="/tags/rbenv/" style="font-size: 15px;">rbenv</a> <a href="/tags/brew/" style="font-size: 15px;">brew</a> <a href="/tags/ruby/" style="font-size: 15px;">ruby</a> <a href="/tags/GEM/" style="font-size: 15px;">GEM</a> <a href="/tags/Mina/" style="font-size: 15px;">Mina</a> <a href="/tags/Deploy/" style="font-size: 15px;">Deploy</a> <a href="/tags/Container/" style="font-size: 15px;">Container</a> <a href="/tags/OAuth/" style="font-size: 15px;">OAuth</a> <a href="/tags/DevOps/" style="font-size: 15px;">DevOps</a> <a href="/tags/VIPS/" style="font-size: 15px;">VIPS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018-06-05/MicroService-Deployment.html">微服务部署：蓝绿部署滚动部署灰度发布金丝雀发布</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html">唯品会运维标准化建设之路</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-17/Oauth2.html">理解OAuth 2.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-16/Talk-About-The-Architecture.html">谈谈架构</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-14/Container-Application-Design.html">基于容器应用设计的原则，模式和反模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-10/How-to-become-an-excellent-architect.html">如何才能成为一个优秀架构师</a></li><li class="post-list-item"><a class="post-list-link" href="/2017-05-01/Aliyun-Open-IPv6.html">阿里云开启 IPv6 支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017-04-25/Install-MongoDB-on-ubuntu16-04.html">Ubuntu16.04 安装 MongoDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017-01-19/Install-And-Deploy-AirFlow.html">安装和部署AirFlow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016-12-26/Use-Brew-Install-Rbenv.html">Mac OS 下安装 rbenv</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">Robbs.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.01" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.01" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.01"><script type="text/javascript" src="/js/search.js?v=0.0.01"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-87287972-1','auto');ga('send','pageview');
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.01"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.01"></script></div></body></html>

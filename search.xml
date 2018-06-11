@@ -1,0 +1,1631 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+  
+    
+    <entry>
+      <title><![CDATA[微服务部署：蓝绿部署滚动部署灰度发布金丝雀发布]]></title>
+      <url>http://www.robbs.win/2018-06-05/MicroService-Deployment.html</url>
+      <content type="html"><![CDATA[<blockquote>
+<p><strong>在项目迭代的过程中，不可避免需要”上线“。上线对应着部署，或者重新部署；部署对应着修改；修改则意味着风险。</strong></p>
+</blockquote>
+<p>目前有很多用于部署的技术，有的简单，有的复杂；有的得停机，有的不需要停机即可完成部署。本文的目的就是将目前常用的布署方案做一个总结。</p>
+<h2 id="1-Blue-Green-Deployment-蓝绿布署"><a href="#1-Blue-Green-Deployment-蓝绿布署" class="headerlink" title="1. Blue/Green Deployment (蓝绿布署)"></a>1. Blue/Green Deployment (蓝绿布署)</h2><h3 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1. 定义"></a>1.1. 定义</h3><p>蓝绿部署是不停老版本，部署新版本然后进行测试，确认OK，将流量切到新版本，然后老版本同时也升级到新版本。</p>
+<h3 id="1-2-特点"><a href="#1-2-特点" class="headerlink" title="1.2. 特点"></a>1.2. 特点</h3><p>蓝绿部署无需停机，并且风险较小。</p>
+<h3 id="1-3-布署过程"><a href="#1-3-布署过程" class="headerlink" title="1.3. 布署过程"></a>1.3. 布署过程</h3><p><strong>第一步、</strong> 部署版本1的应用（一开始的状态）<br>所有外部请求的流量都打到这个版本上。</p>
+<p><img src="/2018-06-05/MicroService-Deployment/1528248341535-ce4d52c7-efb4-492c-adcb-5a26eb55b089-image.png" alt=""> </p>
+<p><strong>第二步、</strong> 部署版本2的应用</p>
+<p>版本2的代码与版本1不同(新功能、Bug修复等)。</p>
+<p><strong>第三步、</strong> 将流量从版本1切换到版本2。</p>
+<p><img src="/2018-06-05/MicroService-Deployment/1528248357041-38b4cee4-d452-48fe-a395-befc390c6d6b-image.png" alt=""> </p>
+<p><strong>第四步、</strong> 如版本2测试正常，就删除版本1正在使用的资源（例如实例），从此正式用版本2。</p>
+<h3 id="1-4-小结"><a href="#1-4-小结" class="headerlink" title="1.4. 小结"></a>1.4. 小结</h3><p>从过程不难发现，在部署的过程中，我们的应用始终在线。并且，新版本上线的过程中，并没有修改老版本的任何内容，在部署期间，老版本的状态不受影响。这样风险很小，并且，只要老版本的资源不被删除，理论上，我们可以在任何时间回滚到老版本。</p>
+<h3 id="1-5-蓝绿发布的注意事项"><a href="#1-5-蓝绿发布的注意事项" class="headerlink" title="1.5. 蓝绿发布的注意事项"></a>1.5. 蓝绿发布的注意事项</h3><p>当你切换到蓝色环境时，需要妥当处理未完成的业务和新的业务。如果你的数据库后端无法处理，会是一个比较麻烦的问题；</p>
+<ul>
+<li>可能会出现需要同时处理“微服务架构应用”和“传统架构应用”的情况，如果在蓝绿部署中协调不好这两者，还是有可能会导致服务停止。</li>
+<li>需要提前考虑数据库与应用部署同步迁移 /回滚的问题。</li>
+<li>蓝绿部署需要有基础设施支持。</li>
+<li>在非隔离基础架构（ VM 、 Docker 等）上执行蓝绿部署，蓝色环境和绿色环境有被摧毁的风险。</li>
+</ul>
+<h2 id="2-Rolling-update（滚动发布）"><a href="#2-Rolling-update（滚动发布）" class="headerlink" title="2. Rolling update（滚动发布）"></a>2. Rolling update（滚动发布）</h2><h3 id="2-1-滚动发布定义"><a href="#2-1-滚动发布定义" class="headerlink" title="2.1. 滚动发布定义"></a>2.1. 滚动发布定义</h3><p>滚动发布：一般是取出一个或者多个服务器停止服务，执行更新，并重新将其投入使用。周而复始，直到集群中所有的实例都更新成新版本。</p>
+<h3 id="2-2-特点"><a href="#2-2-特点" class="headerlink" title="2.2. 特点"></a>2.2. 特点</h3><p>这种部署方式相对于蓝绿部署，更加节约资源——它不需要运行两个集群、两倍的实例数。我们可以部分部署，例如每次只取出集群的20%进行升级。</p>
+<p>这种方式也有很多缺点，例如：</p>
+<ul>
+<li><p>没有一个确定OK的环境。使用蓝绿部署，我们能够清晰地知道老版本是OK的，而使用滚动发布，我们无法确定。</p>
+</li>
+<li><p>修改了现有的环境。</p>
+</li>
+<li><p>如果需要回滚，很困难。举个例子，在某一次发布中，我们需要更新100个实例，每次更新10个实例，每次部署需要5分钟。当滚动发布到第80个实例时，发现了问题，需要回滚，这个回滚却是一个痛苦，并且漫长的过程。</p>
+</li>
+<li><p>有的时候，我们还可能对系统进行动态伸缩，如果部署期间，系统自动扩容/缩容了，我们还需判断到底哪个节点使用的是哪个代码。尽管有一些自动化的运维工具，但是依然令人心惊胆战。</p>
+</li>
+<li><p>因为是逐步更新，那么我们在上线代码的时候，就会短暂出现新老版本不一致的情况，如果对上线要求较高的场景，那么就需要考虑如何做好兼容的问题。</p>
+</li>
+</ul>
+<h2 id="3-Canary-Deployment-灰度发布-金丝雀部署"><a href="#3-Canary-Deployment-灰度发布-金丝雀部署" class="headerlink" title="3. Canary Deployment (灰度发布/金丝雀部署)"></a>3. Canary Deployment (灰度发布/金丝雀部署)</h2><h3 id="3-1-定义"><a href="#3-1-定义" class="headerlink" title="3.1. 定义"></a>3.1. 定义</h3><p>灰度发布是指在黑与白之间，能够平滑过渡的一种发布方式。AB test就是一种灰度发布方式，让一部分用户继续用A，一部分用户开始用B，如果用户对B没有什么反对意见，那么逐步扩大范围，把所有用户都迁移到B上面来。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度，而我们平常所说的金丝雀部署也就是灰度发布的一种方式。</p>
+<blockquote>
+<p>注释：矿井中的金丝雀 17世纪，英国矿井工人发现，金丝雀对瓦斯这种气体十分敏感。空气中哪怕有极其微量的瓦斯，金丝雀也会停止歌唱；而当瓦斯含量超过一定限度时，虽然鲁钝的人类毫无察觉，金丝雀却早已毒发身亡。当时在采矿设备相对简陋的条件下，工人们每次下井都会带上一只金丝雀作为“瓦斯检测指标”，以便在危险状况下紧急撤离。</p>
+</blockquote>
+<p><strong>灰度发布结构图如下：</strong></p>
+<p><img src="/2018-06-05/MicroService-Deployment/1528248583114-c63637d7-9059-4b89-bc0c-3d6adf914253-image.png" alt=""> </p>
+<h3 id="3-2-步骤"><a href="#3-2-步骤" class="headerlink" title="3.2. 步骤"></a>3.2. 步骤</h3><ul>
+<li><p>准备好部署各个阶段的工件，包括：构建工件，测试脚本，配置文件和部署清单文件。</p>
+</li>
+<li><p>从负载均衡列表中移除掉“金丝雀”服务器。</p>
+</li>
+<li><p>升级“金丝雀”应用（排掉原有流量并进行部署）。</p>
+</li>
+<li><p>对应用进行自动化测试。</p>
+</li>
+<li><p>将“金丝雀”服务器重新添加到负载均衡列表中（连通性和健康检查）。</p>
+</li>
+<li><p>如果“金丝雀”在线使用测试成功，升级剩余的其他服务器。（否则就回滚）</p>
+</li>
+</ul>
+<p>除此之外灰度发布还可以设置路由权重，动态调整不同的权重来进行新老版本的验证。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> DevOps </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Deployment </tag>
+            
+            <tag> MicroService </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[唯品会运维标准化建设之路]]></title>
+      <url>http://www.robbs.win/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html</url>
+      <content type="html"><![CDATA[<p>今天分享的内容有四个方面：</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526622683089-e53de777-e7e9-43a3-9796-082929f6da12-image-resized.png" alt=""> </p>
+<h2 id="曾经面临的问题"><a href="#曾经面临的问题" class="headerlink" title="曾经面临的问题"></a>曾经面临的问题</h2><p>唯品会的体量属于居中的互联网公司，希望我们的实践能给相似体量的互联网同仁一些借鉴。</p>
+<p>唯品会的业务逻辑是比较庞大的，除了电商，还有物流、金融，在前期的快速发展阶段，技术栈是先快速上线，各种各样的技术架构都有，到后期，金融外购软件的引入也有不太规范的东西。</p>
+<p>不同人员面对不同的业务线，由于业务线的不统一，导致业务运维的盲区非常多，难以实现人力共享。</p>
+<p>我们建设了非常多平台，发布、变更等等都有，但是总觉得做事情的时候差一口气，没有办法形成非常大的力量支持业务人员，是散兵作战的状态。因为技术栈的不统一，做平台建设的时候要考虑各种特殊场景，甚至妥协。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526622757566-c7d84c80-d860-44a9-98eb-d46e267b748e-image-resized.png" alt=""> </p>
+<p>于是我们开始反思：</p>
+<ul>
+<li>第一，技术人如何确保<code>质量</code>、<code>成本</code>、<code>效率</code>三者的平衡？下图是非常关键的问题。这些之间，没有人敢说都做得非常完美，在这三者之间找最好的平衡点。</li>
+<li>第二，建设了这么多的工具平台，运维人员为什么依然疲惫不堪？</li>
+<li>第三，运维平台建设蒙面狂奔时如何不忘初心？</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526622822459-efc353d7-1eb0-4d67-8eae-06818735481e-image-resized.png" alt=""><br>对此我们总结了四个经验：</p>
+<ul>
+<li>第一，平台建设者必须深刻理解运维痛点。</li>
+<li>第二，平台建设的技术选型不是最重要的，真正理解运维才是最关键。不是说技术选型不重要，不是最重要的。</li>
+<li>第三，标准化程度决定了运维自动化的上限。</li>
+<li>第四，自动化的水平决定了运维新的增长点。总结一句话就是标准化迫在眉睫。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526622880585-b4096aba-b0d8-4c68-9ef6-912d8824cfbd-image-resized.png" alt=""> </p>
+<h2 id="标准化建设之路"><a href="#标准化建设之路" class="headerlink" title="标准化建设之路"></a>标准化建设之路</h2><h3 id="组件概念"><a href="#组件概念" class="headerlink" title="组件概念"></a>组件概念</h3><p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526622977798-6bee3895-00bc-4961-bff5-6315e81afd13-image-resized.png" alt=""> </p>
+<p>组件思想奠定了标准化基础：</p>
+<ul>
+<li>技术成长方面，我们的做法是组件专家组负责，专家组明确组件的发展方向，探索最佳实践，有利于技术积累和人员的技能成长。</li>
+<li>组建服务化，运维人员对外转型技术输出，提供服务化的产品，开发仅按照标准API使用，无需关注底层细节。</li>
+<li>消除业务壁垒，业务人员有了新的追求。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623024415-6b09350f-eb66-483a-a012-88ab0dc81405-image-resized.png" alt=""> </p>
+<h3 id="标准化建设蓝图"><a href="#标准化建设蓝图" class="headerlink" title="标准化建设蓝图"></a>标准化建设蓝图</h3><p>这是标准化建设的大蓝图，运维标准化是非常大的项目，我们拆分了十几个小的项目。<br><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623121436-ccb8e90d-c823-47ec-bbcf-01fb8520055a-image-resized.png" alt=""> </p>
+<p>这是结合唯品会的业务特点，根据公司的具体业务情况进行了具体的拆分。左边是技术流程栈，右边是我们得出的产出。红色是跟业务特性相关的，红色以下的是跟运维相关的。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623181608-62dd2199-2ef8-4caa-98bc-ae13f28f6d9c-image-resized.png" alt=""> </p>
+<h3 id="配置库管理"><a href="#配置库管理" class="headerlink" title="配置库管理"></a>配置库管理</h3><p>开发提一个需求，让运维改生产上的某个配置，这非常痛苦。开发有没有权限改？还是运维去做，运维又不懂，开发又觉得你是小白，懒得跟你解释，运维没有精力学习成百上千的业务系统。</p>
+<p>解决思路是分层治理，专业的人做专业的事情。</p>
+<p>比如，某一购物车的参数改动之后影响到业务逻辑相关的，这样的事情就交给开发去做，跟组件相关的事情，专家组做这部分工作。</p>
+<p>他们去做，不可能开发人员直接到线上去改某个路径下的某个文件，于是就建设了Janitors平台，把各种配置文件有一个标准的梳理，赋予开发人员一个权限，管理自己业务系统的参数就可以了，可以及时改参数，及时生效。</p>
+<p>运维人员关注下面哪一层，基于Puppet来做运维管理。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623270372-27bca87a-88b8-4c9e-8dbf-ade82a2418d1-image-resized.png" alt=""> </p>
+<h3 id="监控标准化"><a href="#监控标准化" class="headerlink" title="监控标准化"></a>监控标准化</h3><p>当机器超过1万的时候，zabbix是不堪重负的，唯品会最初是有多套zabbix做监控。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623312925-f65f893d-6806-404c-bbc1-b2ad4b960bd6-image-resized.png" alt=""> </p>
+<p>理想的监控：</p>
+<ul>
+<li>统一、快、精准</li>
+<li>有统一的入口</li>
+<li>自动化、监控插件标准化</li>
+<li>不能有人员干预我去部监控、加监控</li>
+<li>监控插件标准化。每个人眼中都有监控标准，最终做下来是有多个监控指标，比较致命。</li>
+<li>监控视图定制，充分发挥数据价值，这是偏向运维的。把线上的运行指标的数据，充分发挥其价值，要看到哪些系统赚钱，用的资源又最少，哪些系统是狂花钱，用的资源又最多。</li>
+<li>为开发赋能、系统可扩展。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623366408-20a56b8f-2bd4-434d-93b3-a82644a01a97-image-resized.png" alt=""> </p>
+<p>以上这些，zabbix都不满足。</p>
+<p>监控标准化目标拆分：</p>
+<ul>
+<li>第一层是事件来源，即CMDB应用信息标准化</li>
+<li>第二层是监控模块标准化，专家组负责技术组件的监控设计、阈值设置，监控模版统一的版本控制。</li>
+<li>第三层是告警规则标准化。监控系统与告警系统分离，各司其责。告警根据设备等级、应用等级、严重等级区分。</li>
+</ul>
+<p>告警发送对象统一来源是CMDB。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623412346-0e342a3b-3734-4ab5-b1db-66b405ad9fb3-image-resized.png" alt=""> </p>
+<p>我们做了自己的产品是VIPFalcon，是基于openfalcon的二次开发，现在的监控节点是25000左右，有500万多的metric，通过数据流计算，重新聚合开发数据。这些数据通过Hive来落地进行数据分析，把数据价值发挥出来。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623459856-530145b7-8c67-4d75-b36e-3ca76aa3a4d3-image-resized.png" alt=""> </p>
+<p>通过监控标准化后，VIPFalcon和Zabbix的对比，从一个地方能看到整个公司所有的基础监控的信息，不需要多个入口。采集扩展方面，VIPFalcon是基于Plugin方式，面向HostGroup维度，通过Git进行维护。管理方面，和运维生态、编程语言方面，VIPFalcon都超出Zabbix一大截。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623492880-06a3fdfd-86d0-4dd6-8de2-aa2a6f4ca7a4-image-resized.png" alt=""> </p>
+<p>通过这样工作的效果，我们对内实现了质量提升，大家的工作效率得到提升，维护成本下降，提升用户体验、控制了风险。</p>
+<p>对外价值输出，打通运维体系，为开发赋能，站在开发的角度帮他们思考资源使用的问题。</p>
+<p>精细运维、运营，业务成本核算是数据价值方面的一个产出。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623668710-5d19c184-cdda-4ee0-a774-2b657ca3d9eb-image-resized.png" alt=""> </p>
+<h3 id="变更标准化"><a href="#变更标准化" class="headerlink" title="变更标准化"></a>变更标准化</h3><p>变更跟所有运维人员是紧密相关的，运维背的所有锅都跟这方面有关系。关键是两个思路：</p>
+<ul>
+<li>首先提出了风险矩阵。我们做了一个SDK，这个矩阵用一句话形容就是把原有的变更风险从对象和技术风险两个维度进行了拆分。我简单说一下，对象是指对一个业务系统，它可能是核心系统，也可能是重要系统，也可能是不重要的系统，可以给它画像，会有一个打分。这两者结合在一起，对的变更有一个精准的打分。</li>
+<li>标准变更模版库是指变更通过每个组建的专家设计关于组件所有的变更模版设置，基于专家的模版做的变更，不可以天马行空地想变更的方案。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623711827-15fb2866-1d6e-40bb-bce6-abc617fb9639-image-resized.png" alt=""> </p>
+<p>这些工作固化下来后，我们把各种各样的变更固化成一个个的APP，在变更平台上输出参数可以一键式进行变更。</p>
+<h2 id="打通生态，全面赋能"><a href="#打通生态，全面赋能" class="headerlink" title="打通生态，全面赋能"></a>打通生态，全面赋能</h2><p>什么叫生态？我们建设了这么多自动化系统，每个系统都需要人执行一些任务的话，比如做变更还需要人点击一些按钮，这是还处于自动化的初期。想建设的生态是希望系统驱动系统，所有的系统之间是通过接口调用的方式，人在这个过程中尽量少地参与。</p>
+<h3 id="CMDB代替流程"><a href="#CMDB代替流程" class="headerlink" title="CMDB代替流程"></a>CMDB代替流程</h3><p>打通运维生态，原来的方式是以流程为核心的，大多数人对流程都是非常反感的，没有人真的喜欢流程这个东西。后来，我们转变为以运维流程 + CMDB为核心的方式去实现。流程是非常教条的东西，打个比方，流程告诉我今天下午三点可以做A变更，是不是真的可以做呢？他没有权衡场景、对象、时间的因素，如果下午三点对象有问题，这个流程不应该走下去，但是流程比较傻瓜式地告诉你可以走下去。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623803451-9dc28059-81c2-40a6-9b8d-12a31d720abd-image-resized.png" alt=""> </p>
+<p>这是唯品会的具体业务，中间是流程管控和以CMDB为核心，自上而下是跟运维相关的落地。从组件到部署标准，到各种各样的自助平台。流程打通之后，监控可以发出来，希望通过监控驱动来自愈。比方，磁盘告警到了90%有一个告警，调用自动化的平台上一个磁盘清理的APP，由它去执行。清理完之后，再告诉监控系统给我发一个短信：发现了90%的告警，也执行完告警。这是比较理想的工作状态，这一点已经实现了。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623850017-9060d80e-f9aa-466b-b0c6-6ae9fda6218b-image-resized.png" alt=""> </p>
+<h3 id="变更打通的思路"><a href="#变更打通的思路" class="headerlink" title="变更打通的思路"></a>变更打通的思路</h3><p>关于生态打通方面，一开始的思路是比较宏大的，原来想的是设计一个完美的流程，把事情完全打通，后面发现想得太天真，很难有多么完美的方案能把运维相关的工具体系打通，我们的思路还是一个一个地去打通。比如ABCD系统之间的打通，先打通AB，然后打通CD。变更上的几个问题都是大家一直会碰到的（见PPT），建设了非常好的自动化变更的系统，也非常灵活，但是这是一把双刃剑，DevOps变更失控，变更流程不遵守。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623909934-7bea1880-1054-4e9d-8e18-ca53600fa7ab-image-resized.png" alt=""><br>变更打通设计思路：</p>
+<ul>
+<li>第一，流程系统提供SDK给各自动化工具，提供变更的管控能力、变更的收集能力和SDK的自治能力；</li>
+<li>第二，自动化能力平台，梳理变更风险矩阵集成SDK，上报变更风险矩阵；</li>
+<li>第三，流程系统提供SDK给各自动化工具，提供变更的管控能力、变更的收集能力和SDK的自治能力。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623944201-368e7f65-28d4-4bf6-80dd-fed7fdffc643-image-resized.png" alt=""> </p>
+<p>这是我们的一个体系（见下图），中间是有一个标准模版库，技术专家组设计了一套标准变更，SDK跟左边之间的关联是从负载均衡管理平台、定时任务管理平台、云平台、运维平台以及其他的，打通这些平台给开发人员赋能。</p>
+<p>开发想做简单的业务线上的配置，原来的做法是开发人员要找运维说要做这个配置，运维说等一下，要提一个变更流程，流程走起来之后，发现老板又不在，要找老板审批，这个流程如果顺利的话要大半天。</p>
+<p>现在是开发在tools平台上提交一个申请，中央管控认为风险非常低就可以直接做了，开发一件事情就做完了。</p>
+<p>这个事情带来的收益就是固化标准变更、简化流程、有效控制变更风险，给开发赋能。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526623980216-a03adf71-a356-4373-b78f-75e5ea381397-image-resized.png" alt=""> </p>
+<h3 id="监控打通实现自动化"><a href="#监控打通实现自动化" class="headerlink" title="监控打通实现自动化"></a>监控打通实现自动化</h3><p>我们的思路是整个服务器的生态，从初始化、部署、运行、暂停到服务下线，所有事情都不需要人工干预监控的设置，所有的入口都是监控系统和CMDB之间打通的。所有信息来源只有一个，就是CMDB。当CMDB探测到某个信息有变化，它会写一个消息队列，监控系统就去消费这个消息队列，然后执行相应的监控的挂载或下线的流程。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526624031971-3cd2945b-633e-45a8-95a3-7dd1f0331ddc-image-resized.png" alt=""> </p>
+<p>这是具体的实现（见下图），中间还是监控系统，左边是告警和数据聚合。</p>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526624050910-6b4e1f4a-83ac-4952-bb2b-9162ab111592-image-resized.png" alt=""> </p>
+<p>通过前面的标准化和生态打通之后，收益有两点：</p>
+<ul>
+<li>第一，运维终于有了全面、集中的数据，包括监控数据拿到了，所有线上变更的数据已经有了，线上运行的数据都会有统一的池子沉淀下来。这样的好处是什么呢？如果去做AIOps，没有数据一切都是空谈，通过这种生态的打通，把数据沉淀到一个地方，为后续做智能运维埋下伏笔。</li>
+<li>第二，通过这些事情，实现了效率和流程的平衡，既保证了效率，在风险上又有相应的把控。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526624081158-be8607c6-40a8-4441-8a7d-d8d7ccb0f857-image-resized.png" alt=""> </p>
+<h3 id="再回首"><a href="#再回首" class="headerlink" title="再回首"></a>再回首</h3><p>回到刚开始提出的三个问题，质量、效率和成本方面都有明显的收益。</p>
+<ul>
+<li>质量方面，从原来的苦力转型变成了平台建设者，从自动化迈出第一步到智能化。</li>
+<li>效率方面，降低门槛、效率提升、流程管控。</li>
+<li>成本方面，我们通过数据的聚合后，对每个应用进行画像，对资源的利用更有了数据的支撑。</li>
+</ul>
+<p><img src="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance/1526624130023-948f7fee-19ed-4c58-a632-4bcda7f7020b-image-resized.png" alt=""> </p>
+<h2 id="几点感悟"><a href="#几点感悟" class="headerlink" title="几点感悟"></a>几点感悟</h2><ul>
+<li><strong>有了标准化的土壤，自动化、智能化才能生根发芽。</strong></li>
+<li><strong>标准化需要强有力的领导、明确的方法论。</strong></li>
+<li><strong>DevOps 建设要有业务视角，不是为了技术而做技术，而是从成本、质量、效率三个方面去建设，平台建设的格局要高一点。</strong></li>
+<li><strong>单一兵种需要整合成集团军才能发挥战斗力，在鄙视链里再往上提一步就是靠整合的能力了。</strong></li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> DevOps </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> DevOps </tag>
+            
+            <tag> VIPS </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[理解OAuth 2.0]]></title>
+      <url>http://www.robbs.win/2018-05-17/Oauth2.html</url>
+      <content type="html"><![CDATA[<p><a href="http://en.wikipedia.org/wiki/OAuth" target="_blank" rel="noopener">OAuth</a>是一个关于授权（authorization）的开放网络标准，在全世界得到广泛应用，目前的版本是2.0版。<br>OAuth(开放授权)是一个开放标准。允许第三方网站在用户授权的前提下访问在用户在服务商那里存储的各种信息。而这种授权无需将用户提供用户名和密码提供给该第三方网站。OAuth允许用户提供一个令牌给第三方网站，一个令牌对应一个特定的第三方网站，同时该令牌只能在特定的时间内访问特定的资源。</p>
+<p>本文对OAuth 2.0的设计思路和运行流程，做一个简明通俗的解释，主要参考材料为<a href="http://www.rfcreader.com/#rfc6749" target="_blank" rel="noopener">RFC 6749</a>。</p>
+<h2 id="1-应用场景"><a href="#1-应用场景" class="headerlink" title="1. 应用场景"></a>1. 应用场景</h2><p>为了理解OAuth的适用场合，让我举一个假设的例子。</p>
+<p>有一个”云冲印”的网站，可以将用户储存在Google的照片，冲印出来。用户为了使用该服务，必须让”云冲印”读取自己储存在Google上的照片。<br><img src="/2018-05-17/Oauth2/1526537733448-2448dfdd-e958-4e93-922e-8158d24e7ca2-image.png" alt="云冲印"> </p>
+<p>问题是只有得到用户的授权，Google才会同意”云冲印”读取这些照片。那么，”云冲印”怎样获得用户的授权呢？</p>
+<p>传统方法是，用户将自己的Google用户名和密码，告诉”云冲印”，后者就可以读取用户的照片了。这样的做法有以下几个严重的缺点。</p>
+<ol>
+<li>“云冲印”为了后续的服务，会保存用户的密码，这样很不安全。</li>
+<li>Google不得不部署密码登录，而我们知道，单纯的密码登录并不安全。</li>
+<li>“云冲印”拥有了获取用户储存在Google所有资料的权力，用户没法限制”云冲印”获得授权的范围和有效期。</li>
+<li>用户只有修改密码，才能收回赋予”云冲印”的权力。但是这样做，会使得其他所有获得用户授权的第三方应用程序全部失效。</li>
+<li>只要有一个第三方应用程序被破解，就会导致用户密码泄漏，以及所有被密码保护的数据泄漏。</li>
+</ol>
+<p>OAuth就是为了解决上面这些问题而诞生的</p>
+<h2 id="2-名词定义"><a href="#2-名词定义" class="headerlink" title="2. 名词定义"></a>2. 名词定义</h2><p>在详细讲解OAuth 2.0之前，需要了解几个专用名词。它们对读懂后面的讲解，尤其是几张图，至关重要。</p>
+<ol>
+<li>Third-party application：第三方应用程序，本文中又称”客户端”（client），即上一节例子中的”云冲印”。</li>
+<li>HTTP service：HTTP服务提供商，本文中简称”服务提供商”，即上一节例子中的Google。</li>
+<li>Resource Owner：资源所有者，本文中又称”用户”（user）。</li>
+<li>User Agent：用户代理，本文中就是指浏览器。</li>
+<li>Authorization server：认证服务器，即服务提供商专门用来处理认证的服务器。</li>
+<li>Resource server：资源服务器，即服务提供商存放用户生成的资源的服务器。它与认证服务器，可以是同一台服务器，也可以是不同的服务器。</li>
+</ol>
+<p>知道了上面这些名词，就不难理解，OAuth的作用就是让”客户端”安全可控地获取”用户”的授权，与”服务商提供商”进行互动。</p>
+<h2 id="3-OAuth的思路"><a href="#3-OAuth的思路" class="headerlink" title="3. OAuth的思路"></a>3. OAuth的思路</h2><p>OAuth在”客户端”与”服务提供商”之间，设置了一个授权层（authorization layer）。”客户端”不能直接登录”服务提供商”，只能登录授权层，以此将用户与客户端区分开来。”客户端”登录授权层所用的令牌（token），与用户的密码不同。用户可以在登录的时候，指定授权层令牌的权限范围和有效期。</p>
+<p>“客户端”登录授权层以后，”服务提供商”根据令牌的权限范围和有效期，向”客户端”开放用户储存的资料。</p>
+<h2 id="4-运行流程"><a href="#4-运行流程" class="headerlink" title="4. 运行流程"></a>4. 运行流程</h2><p>OAuth 2.0的运行流程如下图，摘自RFC 6749。<br><img src="/2018-05-17/Oauth2/1526538171063-df6e4c8f-a38d-493e-922f-b5607de02c81-image-resized.png" alt=""></p>
+<blockquote>
+<p><strong>A.  用户打开客户端以后，客户端要求用户给予授权。</strong><br><strong>B.  用户同意给予客户端授权。</strong><br><strong>C.  客户端使用上一步获得的授权，向认证服务器申请令牌。</strong><br><strong>D.  认证服务器对客户端进行认证以后，确认无误，同意发放令牌。</strong><br><strong>E.  客户端使用令牌，向资源服务器申请获取资源。</strong><br><strong>F.  资源服务器确认令牌无误，同意向客户端开放资源。</strong></p>
+</blockquote>
+<p>不难看出来，上面六个步骤之中，B是关键，即用户怎样才能给于客户端授权。有了这个授权以后，客户端就可以获取令牌，进而凭令牌获取资源。</p>
+<p>下面一一讲解客户端获取授权的四种模式。</p>
+<h2 id="5-客户端的授权模式"><a href="#5-客户端的授权模式" class="headerlink" title="5. 客户端的授权模式"></a>5. 客户端的授权模式</h2><p>客户端必须得到用户的授权（authorization grant），才能获得令牌（access token）。OAuth 2.0定义了四种授权方式。</p>
+<ul>
+<li>授权码模式（authorization code）</li>
+<li>简化模式（implicit）</li>
+<li>密码模式（resource owner password credentials）</li>
+<li>客户端模式（client credentials）</li>
+</ul>
+<h3 id="5-1-授权码模式"><a href="#5-1-授权码模式" class="headerlink" title="5.1.  授权码模式"></a>5.1.  授权码模式</h3><p>授权码模式（authorization code）是功能最完整、流程最严密的授权模式。它的特点就是通过客户端的后台服务器，与”服务提供商”的认证服务器进行互动。<br><img src="/2018-05-17/Oauth2/1526538388731-000001cf-8ce8-428e-b84c-1843f840d674-image-resized.png" alt=""> </p>
+<blockquote>
+<p><strong>A. 用户访问客户端，后者将前者导向认证服务器。</strong><br><strong>B. 用户选择是否给予客户端授权。</strong><br><strong>C. 假设用户给予授权，认证服务器将用户导向客户端事先指定的”重定向URI”（redirection URI），同时附上一个授权码。</strong><br><strong>D. 客户端收到授权码，附上早先的”重定向URI”，向认证服务器申请令牌。这一步是在客户端的后台的服务器上完成的，对用户不可见。</strong><br><strong>E. 认证服务器核对了授权码和重定向URI，确认无误后，向客户端发送访问令牌（access token）和更新令牌（refresh token）。</strong></p>
+</blockquote>
+<p>下面是上面这些步骤所需要的参数。</p>
+<p>A步骤中，客户端申请认证的URI，包含以下参数：</p>
+<ul>
+<li><p>response_type：表示授权类型，必选项，此处的值固定为”code”</p>
+</li>
+<li><p>client_id：表示客户端的ID，必选项</p>
+</li>
+<li><p>redirect_uri：表示重定向URI，可选项</p>
+</li>
+<li><p>scope：表示申请的权限范围，可选项</p>
+</li>
+<li><p>state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。</p>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/authorize?response_type=code&amp;client_id=s6BhdRkqt3&amp;state=xyz&amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: server.example.com</span><br></pre></td></tr></table></figure>
+<p>C步骤中，服务器回应客户端的URI，包含以下参数：</p>
+<ul>
+<li><p>code：表示授权码，必选项。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一一对应关系。</p>
+</li>
+<li><p>state：如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。</p>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">302</span> Found</span><br><span class="line"><span class="attribute">Location</span>: https://client.example.com/cb?code=SplxlOBeZQQYbYS6WxSbIA&amp;state=xyz</span><br></pre></td></tr></table></figure>
+<p>D步骤中，客户端向认证服务器申请令牌的HTTP请求，包含以下参数：</p>
+<ul>
+<li><p>grant_type：表示使用的授权模式，必选项，此处的值固定为”authorization_code”。</p>
+</li>
+<li><p>code：表示上一步获得的授权码，必选项。</p>
+</li>
+<li><p>redirect_uri：表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。</p>
+</li>
+<li><p>client_id：表示客户端ID，必选项。</p>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/token</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: server.example.com</span><br><span class="line"><span class="attribute">Authorization</span>: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW</span><br><span class="line"><span class="attribute">Content-Type</span>: application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">grant_type=authorization_code&amp;code=SplxlOBeZQQYbYS6WxSbIA&amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb</span><br></pre></td></tr></table></figure>
+<p>E步骤中，认证服务器发送的HTTP回复，包含以下参数：</p>
+<ul>
+<li><p>access_token：表示访问令牌，必选项。</p>
+</li>
+<li><p>token_type：表示令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。</p>
+</li>
+<li><p>expires_in：表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。</p>
+</li>
+<li><p>refresh_token：表示更新令牌，用来获取下一次的访问令牌，可选项。</p>
+</li>
+<li><p>scope：表示权限范围，如果与客户端申请的范围一致，此项可省略。</p>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Content-Type</span>: application/json;charset=UTF-8</span><br><span class="line"><span class="attribute">Cache-Control</span>: no-store</span><br><span class="line"><span class="attribute">Pragma</span>: no-cache</span><br><span class="line"></span><br><span class="line">&#123;    </span><br><span class="line">   "access_token":"2YotnFZFEjr1zCsicMWpAA",</span><br><span class="line">   "token_type":"example",</span><br><span class="line">   "expires_in":3600,</span><br><span class="line">   "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",</span><br><span class="line">   "example_parameter":"example_value"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面代码可以看到，相关参数使用JSON格式发送（Content-Type: application/json）。此外，HTTP头信息中明确指定不得缓存。</p>
+<h3 id="5-2-简化模式"><a href="#5-2-简化模式" class="headerlink" title="5.2 简化模式"></a>5.2 简化模式</h3><p>简化模式（implicit grant type）不通过第三方应用程序的服务器，直接在浏览器中向认证服务器申请令牌，跳过了”授权码”这个步骤，因此得名。所有步骤在浏览器中完成，令牌对访问者是可见的，且客户端不需要认证。<br><img src="/2018-05-17/Oauth2/1526538829881-8152eca9-54a1-489b-b802-7fc9447eb4bd-image.png" alt=""> </p>
+<blockquote>
+<p><strong>A. 客户端将用户导向认证服务器。</strong><br><strong>B. 用户决定是否给于客户端授权。</strong><br><strong>C. 假设用户给予授权，认证服务器将用户导向客户端指定的”重定向URI”，并在URI的Hash部分包含了访问令牌。</strong><br><strong>D. 浏览器向资源服务器发出请求，其中不包括上一步收到的Hash值。</strong><br><strong>E. 资源服务器返回一个网页，其中包含的代码可以获取Hash值中的令牌。</strong><br><strong>F. 浏览器执行上一步获得的脚本，提取出令牌。</strong><br><strong>G. 浏览器将令牌发给客户端。</strong></p>
+</blockquote>
+<p>下面是上面这些步骤所需要的参数。<br>A步骤中，客户端发出的HTTP请求，包含以下参数：</p>
+<ul>
+<li><p>response_type：表示授权类型，此处的值固定为”token”，必选项。</p>
+</li>
+<li><p>client_id：表示客户端的ID，必选项。</p>
+</li>
+<li><p>redirect_uri：表示重定向的URI，可选项。</p>
+</li>
+<li><p>scope：表示权限范围，可选项。</p>
+</li>
+<li><p>state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。</p>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/authorize?response_type=token&amp;client_id=s6BhdRkqt3&amp;state=xyz&amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: server.example.com</span><br></pre></td></tr></table></figure>
+<p>C步骤中，认证服务器回应客户端的URI，包含以下参数：</p>
+<ul>
+<li><p>access_token：表示访问令牌，必选项。</p>
+</li>
+<li><p>token_type：表示令牌类型，该值大小写不敏感，必选项。</p>
+</li>
+<li><p>expires_in：表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。</p>
+</li>
+<li><p>scope：表示权限范围，如果与客户端申请的范围一致，此项可省略。</p>
+</li>
+<li><p>state：如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。</p>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">302</span> Found</span><br><span class="line"><span class="attribute">Location</span>: http://example.com/cb#access_token=2YotnFZFEjr1zCsicMWpAA&amp;state=xyz&amp;token_type=example&amp;expires_in=3600</span><br></pre></td></tr></table></figure>
+<p>在上面的例子中，认证服务器用HTTP头信息的Location栏，指定浏览器重定向的网址。注意，在这个网址的Hash部分包含了令牌。</p>
+<p>根据上面的D步骤，下一步浏览器会访问Location指定的网址，但是Hash部分不会发送。接下来的E步骤，服务提供商的资源服务器发送过来的代码，会提取出Hash中的令牌。</p>
+<h3 id="5-3-密码模式"><a href="#5-3-密码模式" class="headerlink" title="5.3 密码模式"></a>5.3 密码模式</h3><p>密码模式（Resource Owner Password Credentials Grant）中，用户向客户端提供自己的用户名和密码。客户端使用这些信息，向”服务商提供商”索要授权。</p>
+<p>在这种模式中，用户必须把自己的密码给客户端，但是客户端不得储存密码。这通常用在用户对客户端高度信任的情况下，比如客户端是操作系统的一部分，或者由一个著名公司出品。而认证服务器只有在其他授权模式无法执行的情况下，才能考虑使用这种模式。<br><img src="/2018-05-17/Oauth2/1526540998970-0d6ff6d7-f940-499a-ba77-ffcfe6b66a9c-image-resized.png" alt=""> </p>
+<blockquote>
+<p><strong>A. 用户向客户端提供用户名和密码。</strong><br><strong>B. 客户端将用户名和密码发给认证服务器，向后者请求令牌。</strong><br><strong>C. 认证服务器确认无误后，向客户端提供访问令牌。</strong></p>
+</blockquote>
+<p>B步骤中，客户端发出的HTTP请求，包含以下参数：</p>
+<ul>
+<li><p>grant_type：表示授权类型，此处的值固定为”password”，必选项。</p>
+</li>
+<li><p>username：表示用户名，必选项。</p>
+</li>
+<li><p>password：表示用户的密码，必选项。</p>
+</li>
+<li><p>scope：表示权限范围，可选项。</p>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/token</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: server.example.com</span><br><span class="line"><span class="attribute">Authorization</span>: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW</span><br><span class="line"><span class="attribute">Content-Type</span>: application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">grant_type=password&amp;username=johndoe&amp;password=A3ddj3w</span><br></pre></td></tr></table></figure>
+<p>C步骤中，认证服务器向客户端发送访问令牌，下面是一个例子。<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Content-Type</span>: application/json;charset=UTF-8</span><br><span class="line"><span class="attribute">Cache-Control</span>: no-store</span><br><span class="line"><span class="attribute">Pragma</span>: no-cache</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  "access_token":"2YotnFZFEjr1zCsicMWpAA",</span><br><span class="line">  "token_type":"example",</span><br><span class="line">  "expires_in":3600,</span><br><span class="line">  "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",</span><br><span class="line">  "example_parameter":"example_value"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面代码中，各个参数的含义参见《授权码模式》一节。</p>
+<p>整个过程中，客户端不得保存用户的密码。</p>
+<h3 id="5-4-客户端模式"><a href="#5-4-客户端模式" class="headerlink" title="5.4 客户端模式"></a>5.4 客户端模式</h3><p>客户端模式（Client Credentials Grant）指客户端以自己的名义，而不是以用户的名义，向”服务提供商”进行认证。严格地说，客户端模式并不属于OAuth框架所要解决的问题。在这种模式中，用户直接向客户端注册，客户端以自己的名义要求”服务提供商”提供服务，其实不存在授权问题。<br><img src="/2018-05-17/Oauth2/1526541188587-46b33537-c148-4620-ae68-4c527f671f8f-image-resized.png" alt=""> </p>
+<blockquote>
+<p><strong>A. 客户端向认证服务器进行身份认证，并要求一个访问令牌。</strong><br><strong>B. 认证服务器确认无误后，向客户端提供访问令牌。</strong></p>
+</blockquote>
+<p>A步骤中，客户端发出的HTTP请求，包含以下参数：</p>
+<ul>
+<li><p>granttype：表示授权类型，此处的值固定为”clientcredentials”，必选项。</p>
+</li>
+<li><p>scope：表示权限范围，可选项。</p>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/token</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: server.example.com</span><br><span class="line"><span class="attribute">Authorization</span>: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW</span><br><span class="line"><span class="attribute">Content-Type</span>: application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">grant_type=client_credentials</span><br></pre></td></tr></table></figure>
+<p>认证服务器必须以某种方式，验证客户端身份。</p>
+<p>B步骤中，认证服务器向客户端发送访问令牌，下面是一个例子。<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Content-Type</span>: application/json;charset=UTF-8</span><br><span class="line"><span class="attribute">Cache-Control</span>: no-store</span><br><span class="line"><span class="attribute">Pragma</span>: no-cache</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  "access_token":"2YotnFZFEjr1zCsicMWpAA",</span><br><span class="line">  "token_type":"example",</span><br><span class="line">  "expires_in":3600,</span><br><span class="line">  "example_parameter":"example_value"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面代码中，各个参数的含义参见《授权码模式》一节。</p>
+<h3 id="5-5-更新令牌"><a href="#5-5-更新令牌" class="headerlink" title="5.5 更新令牌"></a>5.5 更新令牌</h3><p>如果用户访问的时候，客户端的”访问令牌”已经过期，则需要使用”更新令牌”申请一个新的访问令牌。</p>
+<p>客户端发出更新令牌的HTTP请求，包含以下参数：</p>
+<ul>
+<li><p>granttype：表示使用的授权模式，此处的值固定为”refreshtoken”，必选项。</p>
+</li>
+<li><p>refresh_token：表示早前收到的更新令牌，必选项。</p>
+</li>
+<li><p>scope：表示申请的授权范围，不可以超出上一次申请的范围，如果省略该参数，则表示与上一次一致。</p>
+</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/token</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: server.example.com</span><br><span class="line"><span class="attribute">Authorization</span>: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW</span><br><span class="line"><span class="attribute">Content-Type</span>: application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">grant_type=refresh_token&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>来源: <a href="http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html</a></p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Architect </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Architect </tag>
+            
+            <tag> OAuth </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[谈谈架构]]></title>
+      <url>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</url>
+      <content type="html"><![CDATA[<p>最近在公司内部做了一次架构交流/培训，把架构的概念、架构的形式、架构设计原则都做了阐述。<br><a href="http://www.rowkey.me/arch-ppt/index.html" target="_blank" rel="noopener">PPT观看</a></p>
+<h2 id="什么是架构"><a href="#什么是架构" class="headerlink" title="什么是架构"></a>什么是架构</h2><ul>
+<li>部门的人力分配、项目规划</li>
+<li>建筑设计中楼层规划、功能性设施规划</li>
+<li>城市的道路布局、功能性建筑设计、娱乐设施设计</li>
+<li>国家的城市规划、高速公路规划、高铁线路规划<blockquote>
+<p><strong>All is 架构！！！</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="架构的本质"><a href="#架构的本质" class="headerlink" title="架构的本质"></a>架构的本质</h2><ul>
+<li><strong>核心生命周期</strong>：拆分之后主体不变的子生命周期</li>
+<li><strong>非核心生命周期</strong>：拆分之后主体改变的子生命周期<br><img src="/2018-05-16/Talk-About-The-Architecture/1526437772448-7783bdeb-4306-4847-85db-3754065cdea8-image.png" alt=""> <blockquote>
+<p><strong>架构的本质在于不断拆分生命周期（树形结构），使得业务可以做到空间上并行。拆出来的每一个生命周期都有自己的边界，不会影响到其他生命周期，各自的变化都在自己的生命周期内确定，即为高内聚。</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><blockquote>
+<p><strong>软件生命周期： 软件开发生命周期 + 软件运行生命周期（软件访问、软件功能、软件监控)</strong></p>
+</blockquote>
+<p><img src="/2018-05-16/Talk-About-The-Architecture/1526437909260-9eff08f6-b8c8-436d-81ff-2ebc3f639464-image.png" alt=""> </p>
+<h2 id="优秀软件架构三要素"><a href="#优秀软件架构三要素" class="headerlink" title="优秀软件架构三要素"></a>优秀软件架构三要素</h2><ul>
+<li><strong>Firmness（稳定）</strong>: Achieve a satisfactory level of freedom from damaging failure.</li>
+<li><strong>Commodity（实用）</strong>: Utility to accomplish the tasks it is purported to be for.</li>
+<li><strong>Delight（易用）</strong>: Pleasure in use.<blockquote>
+<p><strong>建筑(Solid、Useful、Beautiful)-&gt;软件(Firmness、Commodity、Delight)</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="架构流程概述"><a href="#架构流程概述" class="headerlink" title="架构流程概述"></a>架构流程概述</h2><ol>
+<li><strong>业务架构</strong>：俯视架构，包括业务规则、业务模块和业务流程。主要是对整个系统的业务进行拆分，对领域模型进行设计，把现实中的业务转化成抽象的对象。</li>
+<li><strong>技术架构</strong>：剖面架构，是硬件到应用的抽象，包括抽象层和编程接口。技术架构和业务架构是相辅相成的关系，业务架构的每一个部分都有其技术架构，系统的架构需要先做好这两部分。</li>
+<li><strong>数据架构</strong>：存储架构，主要指的是数据结构的设计。决定了应用数据源的特性，是业务架构和技术架构的基础。</li>
+<li><strong>部署架构</strong>：拓扑架构，包括系统部署了几个结点、结点之间的关系、服务器的高可用、容错性、网络接口与协议等。决定了应用如何运行、运行的性能、可维护性、可扩展性等，是所有架构的基础。</li>
+<li><strong>组织架构</strong>：团队架构，包括项目的组织形式、人员构成、职责等，是上面所有架构的保障设施。良好的组织架构能够保证其他架构的有效实施和推进。<blockquote>
+<p><strong>架构随着业务、负载的变化需要不断的梳理和重构，推进架构的演进。</strong></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="业务架构"><a href="#业务架构" class="headerlink" title="业务架构"></a>业务架构</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438152354-6a181918-13db-4d45-855f-88257de3f429-image.png" alt="俯视视角"> </p>
+<ul>
+<li>业务执行是应用的核心模块，是应用的主要功能。</li>
+<li>数据分析是应用的辅助模块，有助于对应用做数据驱动化研发、商业智能研究、改善用户体验。</li>
+<li>系统管理是应用的基础部分，做好系统的部署、各项指标的监控、关键数据的备份等有助于应用快速迭代部署和稳定运行。</li>
+</ul>
+<h2 id="技术架构-概览"><a href="#技术架构-概览" class="headerlink" title="技术架构 - 概览"></a>技术架构 - 概览</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438216252-267d0e5e-63b3-44dc-b988-c9eb1758a10f-image.png" alt="剖面视角"> </p>
+<ul>
+<li>业务数据源、数据的规则引擎和分析规则支撑起了交互界面的呈现</li>
+<li>基础设施、通用服务构建起了底层的业务逻辑</li>
+</ul>
+<h2 id="技术架构-具体"><a href="#技术架构-具体" class="headerlink" title="技术架构 - 具体"></a>技术架构 - 具体</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438239613-1cdabcae-9196-4aad-869d-94285ae76d41-image.png" alt=""> </p>
+<ul>
+<li>UI和应用都属于应用层，即提供具体的业务实现。其中UI是视图层的主要表现形式。</li>
+<li>应用和服务属于控制逻辑和访问通道，其中服务则是主要的业务逻辑所在，其可以提供服务接口，供应用调用。</li>
+<li>核心、驱动和数据构成了数据层，是对业务中所有相关数据的操作逻辑，是模型层。其中，核心可以对外提供接口，供服务调用。</li>
+</ul>
+<h2 id="架构的演化"><a href="#架构的演化" class="headerlink" title="架构的演化"></a>架构的演化</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438275615-26fee321-9534-4a04-b51e-7806434b66e7-image.png" alt=""> </p>
+<ul>
+<li>单体应用架构，所有逻辑都在应用和核心模块中，包括业务逻辑、数据操作等。</li>
+<li>通过数据驱动统一数据操作接口，屏蔽数据源的差异，可以根据资源进行垂直分区。</li>
+<li>解耦各个模块以服务的形式对外提供api接口，形成分布式服务架构。</li>
+</ul>
+<h2 id="部署架构"><a href="#部署架构" class="headerlink" title="部署架构"></a>部署架构</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438314473-c5da5a10-c62d-49a0-9209-5e43e54b88ca-image-resized.png" alt=""> </p>
+<ul>
+<li>UI交互界面单独部署，包括web、app等形式</li>
+<li>应用单独部署为一个结点或者集群</li>
+<li>服务、核心以及驱动做为整体进行部署</li>
+<li>数据源单独部署</li>
+<li>一个简单的应用/服务集群: LVS(使用keepalived做主备) + Nginx(反向代理) + Tomcat(业务容器)</li>
+</ul>
+<h2 id="数据架构"><a href="#数据架构" class="headerlink" title="数据架构"></a>数据架构</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438343067-0e351afe-72f7-4a7f-a6be-72fab9cd54c8-image.png" alt=""> </p>
+<ul>
+<li>交互界面呈现出来的数据交互逻辑、数据流向决定了业务的主要数据设计</li>
+<li>原始的业务数据、日志和统计需要的数据支撑了数据分析需要的报表输出</li>
+<li>实时信息在一定的规则和状态机引擎下可以提供出实时状态监测等仪表盘功能</li>
+</ul>
+<h2 id="数据的五个属性"><a href="#数据的五个属性" class="headerlink" title="数据的五个属性"></a>数据的五个属性</h2><ul>
+<li><strong>访问频率</strong>：读写频率；只读且经常被访问的数据可以冗余多份</li>
+<li><strong>对一致性的要求</strong>：一致性要求高的数据需要严格保证准确性。</li>
+<li><strong>访问权限</strong>：API设计中根据不同的权限暴露不同粒度的数据。PO-&gt;VO即是对同一事物在不同权限下的描述,</li>
+<li><strong>数据重要性</strong>：不可丢失、允许部分丢失、只是缓存、无需保存</li>
+<li><strong>数据保密性</strong>：内部可以明文、内部不可明文、可以对外公开</li>
+</ul>
+<h2 id="数据设计"><a href="#数据设计" class="headerlink" title="数据设计"></a>数据设计</h2><ul>
+<li>充分理解交互UI，需要知道哪些数据界面关联，哪些数据可以缓存。</li>
+<li>充分理解业务，要搞清楚哪些数据需要记录以及数据之间的关系。</li>
+<li>数据库设计需要注意存储效率：<ul>
+<li>减少事务</li>
+<li>减少联表查询</li>
+<li>适当使用索引</li>
+<li>考虑使用缓存</li>
+<li>…</li>
+</ul>
+</li>
+<li>数据统计场景中，实时性要求较高的数据统计可以用redis；非实时数据则可以使用单独表，通过队列异步运算或者定时计算更新数据。此外，对于一致性要求较高的统计数据，需要依靠事务或者定时校对机制保证准确性。</li>
+</ul>
+<h2 id="什么是架构师"><a href="#什么是架构师" class="headerlink" title="什么是架构师"></a>什么是架构师</h2><ul>
+<li>生命周期识别，合理拆分生命周期</li>
+<li>识别问题和问题的主体, 切忌把解决方案当问题, 发现问题永远比解决问题更加重要!!!</li>
+<li>关注业务技术，保障业务增长</li>
+<li>OKR架构：负责关键技术的突破，解决技术可行性问题，拿出从0到1的那些关键结果</li>
+<li><strong>权责对等，保障架构执行！！！</strong></li>
+</ul>
+<h2 id="架构师必备素质"><a href="#架构师必备素质" class="headerlink" title="架构师必备素质"></a>架构师必备素质</h2><ul>
+<li>站的高、望的远、扎的深</li>
+<li>精通某种技术，能够从本质上类比，触类旁通其他技术。</li>
+<li>平等对待所有技术，只有合适与不合适，没有喜欢与不喜欢。</li>
+<li>视野开阔，了解不同技术的优缺点, 知道可以直接用哪个开源项目来满足这样那样的需求，能够辨别是否需要造轮子。</li>
+<li>精通设计模式，但又不泛用。</li>
+<li>把系统拆分成多个子系统或模块，模块之间尽量松耦合，使得原先只能串行的开发任务，可以并行开展，可以通过投入更多人力来缩短工期。</li>
+<li>能清楚地知道系统的瓶颈在什么地方，不断地定位技术难度、研发进度、性能、内存等各方面的瓶颈，不断调整骨干力量解决瓶颈，在风险爆发之前就消除隐患。</li>
+<li>能够预料到需求可能产生怎样的变化，做好前瞻性设计。</li>
+</ul>
+<h2 id="架构六步思考法"><a href="#架构六步思考法" class="headerlink" title="架构六步思考法"></a>架构六步思考法</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438498119-90bbb34f-ef90-43cb-939b-aa0f696262ce-image.png" alt="架构六步思考法"> </p>
+<h2 id="架构原则-概览"><a href="#架构原则-概览" class="headerlink" title="架构原则 - 概览"></a>架构原则 - 概览</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438513492-00ba90a2-24fb-460d-aa4c-d30bed417433-image.png" alt=""> </p>
+<h2 id="架构原则"><a href="#架构原则" class="headerlink" title="架构原则"></a>架构原则</h2><ul>
+<li><strong>避免过度设计</strong>：最简单的方案最容易实现和维护，也可以避免浪费资源。但方案中需要包括扩展。</li>
+<li><strong>冗余设计</strong>：对服务、数据库的做结点冗余，保证服务的高可用。通过数据库主从模式、应用集群来实现。</li>
+<li><strong>多活数据中心</strong>：为了容灾，从根本上保障应用的高可用性。需要构建多活的数据中心，以防止一个数据中心由于不可控因素出现故障后，引起整个系统的不可用。</li>
+<li><strong>无状态设计</strong>：api、接口等的设计不能有前后依赖关系，一个资源不受其他资源改动的影响。无状态的系统才能更好地进行扩展。如果非得有状态，则要么客户端管理状态，要么服务端用分布式缓存管理状态。</li>
+<li><strong>可回滚</strong>：对于任何业务尤其是关键业务，都具有恢复机制。可以使用基于日志的WAL、基于事件的Event sourcing等来实现可回滚。</li>
+<li><strong>可禁用/自我保护</strong>：具有限流机制，当上游的流量超过自身的负载能力时，能够拒绝溢出的请求。可以通过手动开关或者自动开关（监测异常流量行为），在应用前端挡住流量。</li>
+<li><strong>问题可追踪</strong>：当系统出现问题时，能够定位请求的轨迹、每一步的请求信息等。分布式链路追踪系统即解决的此方面的问题。</li>
+<li><strong>可监控</strong>：可监控是保障系统能够稳定运行的关键。包括对业务逻辑的监控、应用进程的监控以及应用依赖的CPU、硬盘等系统资源的监控。每一个系统都需要做好这几个层面的监控。</li>
+<li><strong>故障隔离</strong>：将系统依赖的资源(线程、CPU)和服务隔离开来能够使得某个服务的故障不会影响其他服务的调用。通过线程池或者分散部署结点可以对故障进行隔离。</li>
+<li><strong>成熟可控的技术选型</strong>：使用市面上主流、成熟、文档、支持资源多的技术，选择合适的而非最火的技术实现系统。</li>
+<li><strong>梯级存储</strong>：内存-&gt;SSD硬盘-&gt;传统硬盘-&gt;磁带，可以根据数据的重要性和生命周期对数据进行分级存储。</li>
+<li><strong>缓存设计</strong>：隔离请求与后端逻辑、存储，是就近原则的一种机制。包括客户端缓存（预先下发资源）、nginx缓存、本地缓存以及分布式缓存。</li>
+<li><strong>异步设计</strong>：对于调用方不关注结果或者允许结果延时返回的接口，采用队列进行异步响应能够很大程度提高系统性能；调用其他服务的时候不去等待服务方返回结果直接返回，同样能够提升系统响应性能。异步队列也是解决分布式事务的常用手段。</li>
+<li><strong>前瞻性设计</strong>：根据行业经验和预判，提前把可扩展性、后向兼容性设计好。</li>
+<li><strong>水平扩展</strong>：相比起垂直扩展，能够通过堆机器解决问题是最优先考虑的问题，系统的负载能力也才能接近无限扩展。此外，基于<code>云计算</code>技术根据系统的负载自动调整容量能够在节省成本的同时保证服务的可用性。</li>
+<li><strong>小步构建和发布</strong>：快速迭代项目，快速试错。不能有跨度时间过长的项目规划。</li>
+<li><strong>自动化</strong>：打包、测试的自动化称为持续集成，部署的自动化称为持续部署。自动化机制是快速迭代和试错的基础保证。</li>
+</ul>
+<h2 id="架构原则-可扩展"><a href="#架构原则-可扩展" class="headerlink" title="架构原则 - 可扩展"></a>架构原则 - 可扩展</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438712437-0ddc81c3-0e3f-437a-8b2f-721e5a730e49-image.png" alt="三轴扩展理论"> </p>
+<ul>
+<li>X轴，水平复制或克隆，面向目标，如数据库读写分离、复制表、replication等，将单体应用或者以来的服务做冗余，通过负载均衡提高系统负载能力。</li>
+<li>Y轴，面向功能/服务，如垂直应用、分布式服务等，就是将单体应用根据功能拆分成小的应用或者服务。</li>
+<li>Z轴，面向资源，如数据库水平分库，对资源做分片，将压力分散到不同的结点上。<blockquote>
+<ul>
+<li><strong>避免依赖于数据库的运算功能(函数、存储器、触发器等)，将负载放在更容易扩展的业务应用端。</strong></li>
+<li><strong>可扩展方案原则： 20倍设计、3倍实施、1.5倍部署（DID）。</strong></li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h2 id="系统响应性能提升五板斧"><a href="#系统响应性能提升五板斧" class="headerlink" title="系统响应性能提升五板斧"></a>系统响应性能提升五板斧</h2><ul>
+<li><strong>异步</strong>：队列缓冲、异步请求。</li>
+<li><strong>并发</strong>：利用多CPU多线程执行业务逻辑。</li>
+<li><strong>就近原则</strong>：缓存、梯度存储。</li>
+<li><strong>减少IO</strong>：合并细粒度接口为粗粒度接口、频繁的覆盖操作可以只做最后一次操作。这里一个需要特别注意的地方: <strong>代码中尽量避免在循环中调用外部服务，更好的做法是使用粗粒度批量接口在循环外面只进行一次请求。</strong></li>
+<li><strong>分区</strong>：频繁访问的数据集规模保持在合理的范围。</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>《架构真经》 by 陈斌</li>
+<li>《聊聊架构》 by 王概凯</li>
+<li>《架构师的第一课》 by 蔡学镛</li>
+<li>架构六步思考法 by 夏华夏@美团</li>
+</ul>
+<hr>
+<blockquote>
+<p>来源: <a href="http://www.rowkey.me/arch-ppt/index.html" target="_blank" rel="noopener">http://www.rowkey.me/arch-ppt/index.html</a></p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Architect </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Architect </tag>
+            
+            <tag> Humanity </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[基于容器应用设计的原则，模式和反模式]]></title>
+      <url>http://www.robbs.win/2018-05-14/Container-Application-Design.html</url>
+      <content type="html"><![CDATA[<p>容器和容器编排（Kubernetes）的广泛使用，让我们可以轻松的构建基于微服务的“云原生”（Cloud Native）的应用。容器成为了云时代的新的编程单元，类似面向对象概念下的<code>对象</code>，J2EE中的<code>组件</code>或者函数式编程中的<code>函数</code>。</p>
+<p>在面向对象时代，有许多著名的设计原则，模式和反模式等，例如：</p>
+<ul>
+<li><a href="https://zh.wikipedia.org/wiki/SOLID_(%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1)" title="SOLID" target="_blank" rel="noopener">SOLID</a> (<strong>单一功能、开闭原则、里氏替换、接口隔离以及依赖反转</strong>）</li>
+<li><p><a href="https://zh.wikipedia.org/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%9A%E5%8F%AF%E5%A4%8D%E7%94%A8%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%9F%BA%E7%A1%80" target="_blank" rel="noopener">Design Patterns: Elements of Reusable Object-Oriented Software</a></p>
+</li>
+<li><p><a href="https://zh.wikipedia.org/wiki/%E5%8F%8D%E9%9D%A2%E6%A8%A1%E5%BC%8F" target="_blank" rel="noopener">Anti-Pattern</a></p>
+</li>
+</ul>
+<p>在新的容器背景下，相应的原则和模式有助于帮助我们更好的构建“云原生”的应用。我们可以看到，这些原则和模式并非对之前模式的颠覆和推翻，更像是适应新环境的演进版本。</p>
+<h2 id="原则"><a href="#原则" class="headerlink" title="原则"></a>原则</h2><h4 id="单一职责原则-SINGLE-CONCERN-PRINCIPLE-SCP"><a href="#单一职责原则-SINGLE-CONCERN-PRINCIPLE-SCP" class="headerlink" title="单一职责原则 SINGLE CONCERN PRINCIPLE (SCP)"></a>单一职责原则 SINGLE CONCERN PRINCIPLE (SCP)</h4><p>与OO的单一功能相对应，每一个容器应该提供单一的职责，只关注于做好一件事。单一职责使得容器更容易重用。通常容器对应于一个进程，而该进程专注于做好一件事。<br><img src="/2018-05-14/Container-Application-Design/1526261691982-7ead3978-fe73-423f-a675-90309a8bc859-image.png" alt="SINGLE CONCERN PRINCIPLE (SCP)"> </p>
+<h4 id="高可观测性原则-HIGH-OBSERVABILITY-PRINCIPLE-HOP"><a href="#高可观测性原则-HIGH-OBSERVABILITY-PRINCIPLE-HOP" class="headerlink" title="高可观测性原则 HIGH OBSERVABILITY PRINCIPLE (HOP)"></a>高可观测性原则 HIGH OBSERVABILITY PRINCIPLE (HOP)</h4><p>容器像对象一样，应该是一个封装良好的黑盒子。但是在云的环境下，这个黑盒子应该提供良好的观测接口，使得其在云的环境下得到相应的监控和管理。这样，整个应用才能提供一致的生命周期的管理。<br><img src="/2018-05-14/Container-Application-Design/1526261707323-33e04e90-0449-4fea-8846-49a7a3cf6915-image-resized.png" alt="HIGH OBSERVABILITY PRINCIPLE (HOP)"> </p>
+<p>可观测性包含：</p>
+<ul>
+<li>提供健康检查 Health Check，或者心跳</li>
+<li>提供状态</li>
+<li>把日志输出到标准输出(STDOUT)和标准出错(STDERR)</li>
+<li>等等 </li>
+</ul>
+<h4 id="生命周期确认原则-LIFE-CYCLE-CONFORMANCE-PRINCIPLE-LCP"><a href="#生命周期确认原则-LIFE-CYCLE-CONFORMANCE-PRINCIPLE-LCP" class="headerlink" title="生命周期确认原则 LIFE-CYCLE CONFORMANCE PRINCIPLE (LCP)"></a>生命周期确认原则 LIFE-CYCLE CONFORMANCE PRINCIPLE (LCP)</h4><p>生命周期确认原则指的是容器应该提供和平台交互来处理相应的生命周期的变化。<br><img src="/2018-05-14/Container-Application-Design/1526261801128-be721a67-971b-4f35-960e-0ce907328f73-image-resized.png" alt="LIFE-CYCLE CONFORMANCE PRINCIPLE (LCP)"> </p>
+<ul>
+<li><p>捕获并响应Terminate (SIGTERM)信号，来尽快优雅的终止服务进程，以避免kill (SIGKILL)信号强行终止进程。例如一下的NodeJS代码。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">process.on(<span class="string">'SIGTERM'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"Received SIGTERM. Exiting."</span>)</span><br><span class="line">  server.close(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    process.exit(<span class="number">0</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>返回退出码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">process.exit(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="镜像不可变原则-IMAGE-IMMUTABILITY-PRINCIPLE-IIP"><a href="#镜像不可变原则-IMAGE-IMMUTABILITY-PRINCIPLE-IIP" class="headerlink" title="镜像不可变原则 IMAGE IMMUTABILITY PRINCIPLE (IIP)"></a>镜像不可变原则 IMAGE IMMUTABILITY PRINCIPLE (IIP)</h4><p>在运行时，配置可以不同，但是镜像应该是不可变的。<br><img src="/2018-05-14/Container-Application-Design/1526261901806-402b717e-5379-476a-ab90-d419ff516bc8-image.png" alt="IMAGE IMMUTABILITY PRINCIPLE (IIP)"><br>我们可以理解为镜像是个类，是容器是对象实例，类是不变的，而容器是拥有不同配置参数的镜像实例。</p>
+<h4 id="进程用完既丢原则-PROCESS-DISPOSABILITY-PRINCIPLE-PDP"><a href="#进程用完既丢原则-PROCESS-DISPOSABILITY-PRINCIPLE-PDP" class="headerlink" title="进程用完既丢原则 PROCESS DISPOSABILITY PRINCIPLE (PDP)"></a>进程用完既丢原则 PROCESS DISPOSABILITY PRINCIPLE (PDP)</h4><p>在云环境下，我们应该假定所有的容器都是临时的，它随时有可能被其它的容器实例所替代。<br><img src="/2018-05-14/Container-Application-Design/1526261921352-50cf453f-a1eb-4d16-bde3-c47f7ecb5c96-image.png" alt="PROCESS DISPOSABILITY PRINCIPLE (PDP)"><br>这也就意味着需要把容器的状态保存在容器之外。并且尽可能快速的启动和终止容器。通常越小的容器就越容易实现这一点。</p>
+<h4 id="自包含原则-SELF-CONTAINMENT-PRINCIPLE-S-CP"><a href="#自包含原则-SELF-CONTAINMENT-PRINCIPLE-S-CP" class="headerlink" title="自包含原则 SELF-CONTAINMENT PRINCIPLE (S-CP)"></a>自包含原则 SELF-CONTAINMENT PRINCIPLE (S-CP)</h4><p>容器在构建的时候应该包含所有的依赖，也就是所说容器在运行时不应该有任何的外部依赖。<br><img src="/2018-05-14/Container-Application-Design/1526261951920-41f3d5f6-38ef-4619-91a1-1f802c90696a-image.png" alt="SELF-CONTAINMENT PRINCIPLE (S-CP)"> </p>
+<h4 id="限制运行资源原则-RUNTIME-CONFINEMENT-PRINCIPLE-RCP"><a href="#限制运行资源原则-RUNTIME-CONFINEMENT-PRINCIPLE-RCP" class="headerlink" title="限制运行资源原则 RUNTIME CONFINEMENT PRINCIPLE (RCP)"></a>限制运行资源原则 RUNTIME CONFINEMENT PRINCIPLE (RCP)</h4><p>容器的最佳实践应该是在运行时指定容器对资源配置的需求。例如需要多少的内存，CPU等等。这样做可以使得容器编排能都更有效的调度和管理资源。<br><img src="/2018-05-14/Container-Application-Design/1526261967663-aaa59614-51c8-43cc-bde6-237e644fbbb2-image.png" alt="RUNTIME CONFINEMENT PRINCIPLE (RCP)"> </p>
+<h2 id="模式"><a href="#模式" class="headerlink" title="模式"></a>模式</h2><p>许多容器应用的模式和Pod的概念相关，Pod是Kubernetes为了有效的管理容器而提出的概念，它是容器的集合，我们可以理解为“超容器”（我随便发明的）。Pod包含的容器之间就好像运行在同一台机器上，这些容器共享Localhost主机地址，可以本机通信，共享卷等等。<br><img src="/2018-05-14/Container-Application-Design/1526261996216-83455d4d-0512-4dbb-877e-1cd6e97e76ed-image.png" alt=""> </p>
+<p>Kubernetes 类似云上OS，提供了用容器构建云原生应用的最佳实践。我们看看这些常见的模式都有什么。</p>
+<h4 id="边车（侧斗）（Sidecar）"><a href="#边车（侧斗）（Sidecar）" class="headerlink" title="边车（侧斗）（Sidecar）"></a>边车（侧斗）（Sidecar）</h4><p><img src="/2018-05-14/Container-Application-Design/1526262020618-7b150d6f-b6a3-4791-8212-38551258c423-image.png" alt=""><br>Sidecar是最常见的模式，在同一个Pod中，我们需要把不同的责任分在不同的容器中，对外部提供一个完整的功能。<br><img src="/2018-05-14/Container-Application-Design/1526262054188-bc378617-e76c-4498-9c0b-82f7704e6496-image-resized.png" alt=""> </p>
+<p>这样的例子有很多，例如：</p>
+<ul>
+<li>上图中的Node后端和提供缓存的Redis</li>
+<li>Web服务器和收集日志的服务</li>
+<li>Web服务器和负责监控服务器性能数据的服务</li>
+</ul>
+<p>这样做有点类似面向对象的<a href="https://en.wikipedia.org/wiki/Composite_pattern" target="_blank" rel="noopener">组合模式</a>，好处有很多：<br><img src="/2018-05-14/Container-Application-Design/1526262095283-87098624-d8fc-4286-a2af-ac94f4b0f47b-image.png" alt="Composite Pattern Implementation - UML Class Diagram"> </p>
+<ul>
+<li>应用单一职责原则，每一个容器只负责专注做好一件事。</li>
+<li>隔离，容器之间不会出现互相竞争资源，当一个次要功能（例如日志收集或者缓存）失效或者崩溃的时候，对主要功能的影响降至最小。</li>
+<li>可以对每一个容器进行独立的生命周期管理</li>
+<li>可以对每一个容器进行独立的弹性扩张</li>
+<li>可以方便的替换其中一个容器</li>
+</ul>
+<h4 id="代理（大使）容器"><a href="#代理（大使）容器" class="headerlink" title="代理（大使）容器"></a>代理（大使）容器</h4><p><img src="/2018-05-14/Container-Application-Design/1526262238219-a6221168-99d3-4f03-bfc6-ca2fad38c325-image.png" alt="Proxy Pattern Implementation - UML Class Diagram"><br>类似于面向对象的<a href="https://en.wikipedia.org/wiki/Proxy_pattern" target="_blank" rel="noopener">Proxy模式</a>，利用Pod中一个容器提供对外的访问连接。如下图中Node后端总是通过Service Discovery容器来和外部进行通信。<br><img src="/2018-05-14/Container-Application-Design/1526262264669-62a724a4-88d8-4511-9120-328cd7a4af15-image-resized.png" alt=""> </p>
+<p>这样做，负责Node模块开发的只需要假定所有的通信都是来自于本机，而把通信的复杂性交给代理容器，去处理诸如负载均衡，安全，过滤请求，必要时中断通信等功能。</p>
+<h4 id="适配器容器"><a href="#适配器容器" class="headerlink" title="适配器容器"></a>适配器容器</h4><p><img src="/2018-05-14/Container-Application-Design/1526262303219-9324cca1-515f-4424-b9b8-c19b8814b9c3-image.png" alt="Adapter  Pattern Implementation - UML Class Diagram"> </p>
+<p>大家常常会把面向对象的Proxy模式，Bridge模式和<a href="https://en.wikipedia.org/wiki/Adapter_pattern" target="_blank" rel="noopener">Adapter模式</a>搞混，因为单单从UML关系图上来看，它们都大同小异。似乎只是取了不同的名字。事实也确实如此，就像几乎所有的OO模式都是组合模式的衍生，所有容器模式都是边车模式的衍生。</p>
+<p>在下图的例子中，如果Logging Adapter的名字不提及Adapter，我们不会认为这是个适配器模式。<br><img src="/2018-05-14/Container-Application-Design/1526262348948-fce2d10f-320e-4d52-89eb-931bf394454c-image-resized.png" alt=""> </p>
+<p>其实适配器模式关注的是如果把Pod内部的不同容器的功能通过适配器统一的暴漏出来。在上图中，如果我们再多加一个容器，它同时会向卷中写入日志的化，这样就更清楚了。Logging Adapter适配不同容器用不同的接口提供的日志，并提供统一的访问接口。</p>
+<h4 id="容器链"><a href="#容器链" class="headerlink" title="容器链"></a>容器链</h4><p><img src="/2018-05-14/Container-Application-Design/1526262383289-ee67fbb1-8251-4af3-bb61-f28db3e9bbc0-image.png" alt="hain of Responsability Implementation - UML Class Diagram"> </p>
+<p>类似于OO的<a href="http://www.oodesign.com/chain-of-responsibility-pattern.html" target="_blank" rel="noopener">责任链模式</a>，把负责不同功能的容器按照依赖顺序链在一起，也是一种常见的模式。<br><img src="/2018-05-14/Container-Application-Design/1526262452948-23ea67c9-470f-4f7b-8a03-c76307b4415f-image-resized.png" alt=""> </p>
+<h4 id="准备就绪的Pod"><a href="#准备就绪的Pod" class="headerlink" title="准备就绪的Pod"></a>准备就绪的Pod</h4><p><img src="/2018-05-14/Container-Application-Design/1526262469915-5b17a04f-67ce-46de-967f-8d8ef906ac68-image.png" alt=""> </p>
+<p>通常作为服务的容器有一个启动的过程，在启动过程中，服务是不可用的。Kubernetes提供了<a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/" target="_blank" rel="noopener">Readiness</a>探测功能。<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">readinessProbe:</span></span><br><span class="line"><span class="attr">  httpGet:</span></span><br><span class="line"><span class="attr">    path:</span> <span class="string">/</span></span><br><span class="line"><span class="attr">    port:</span> <span class="number">5000</span></span><br><span class="line"><span class="attr">  timeoutSeconds:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">  periodSeconds:</span> <span class="number">5</span></span><br></pre></td></tr></table></figure></p>
+<p>和其它模式相比，这个更像是一个使用Kubernetes的最佳实践。</p>
+<h2 id="反模式"><a href="#反模式" class="headerlink" title="反模式"></a>反模式</h2><h4 id="构建环境和运行环境混杂在一起"><a href="#构建环境和运行环境混杂在一起" class="headerlink" title="构建环境和运行环境混杂在一起"></a>构建环境和运行环境混杂在一起</h4><p>应该使得用于生产的运行环境的镜像尽可能的小，避免在运行环境的镜像中包含构建时的残留。</p>
+<p>例如下面的Dockerfile例子：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu:14.04</span><br><span class="line"></span><br><span class="line">RUN apt-get update</span><br><span class="line">RUN apt-get install gcc</span><br><span class="line">RUN gcc hello.c -o /hello</span><br></pre></td></tr></table></figure></p>
+<p>在这个构建的镜像中，有很多不需要也不应该出现在生产环境中的东西，例如gcc，源代码hello.c。这样的结果既不安全（直接暴漏源代码），也会有性能开销（过大的镜像体积导致加载变慢）。</p>
+<p>Docker17.05 以后提供的<a href="https://docs.docker.com/develop/develop-images/multistage-build/" target="_blank" rel="noopener">multi-stage builds</a>也可以解决这个问题。</p>
+<h4 id="直接使用Pod"><a href="#直接使用Pod" class="headerlink" title="直接使用Pod"></a>直接使用Pod</h4><p>避免直接使用Pod，用Deployment来管理Pod。利用Deployment可以很方便的对Pod进行扩展和管理。</p>
+<h4 id="使用latest标签"><a href="#使用latest标签" class="headerlink" title="使用latest标签"></a>使用latest标签</h4><p>Latest标签用于标记最近的稳定版本，然而在创建容器时，尽可能避免在生产环境使用Latest标签。即使使用imagePullPolicy选项为alway。</p>
+<h4 id="快速失败的任务"><a href="#快速失败的任务" class="headerlink" title="快速失败的任务"></a>快速失败的任务</h4><p>Job是Kubernetes提供的只运行一次的容器，和service正好相反。要避免快速失败<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">batch/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Job</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">bad</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  template:</span></span><br><span class="line"><span class="attr">    metadata:</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">bad</span></span><br><span class="line"><span class="attr">    spec:</span></span><br><span class="line"><span class="attr">      restartPolicy:</span> <span class="string">Never</span></span><br><span class="line"><span class="attr">      containers:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">box</span></span><br><span class="line"><span class="attr">        image:</span> <span class="string">busybox</span></span><br><span class="line"><span class="attr">        command:</span> <span class="string">["/bin/sh",</span> <span class="string">"-c"</span><span class="string">,</span> <span class="string">"exit 1"</span><span class="string">]</span></span><br></pre></td></tr></table></figure></p>
+<p>如果你尝试在你的cluster里面创建以上的Job，你可能会碰到如下的状态。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl describe <span class="built_in">jobs</span> </span><br><span class="line">Name:   bad</span><br><span class="line">Namespace:  default</span><br><span class="line">Image(s): busybox</span><br><span class="line">Selector: controller-uid=18a6678e-11d1-11e7-8169-525400c83acf</span><br><span class="line">Parallelism:  1</span><br><span class="line">Completions:  1</span><br><span class="line">Start Time: Sat, 25 Mar 2017 20:05:41 -0700</span><br><span class="line">Labels:   controller-uid=18a6678e-11d1-11e7-8169-525400c83acf</span><br><span class="line">    job-name=bad</span><br><span class="line">Pods Statuses:  1 Running / 0 Succeeded / 24 Failed</span><br><span class="line">No volumes.</span><br><span class="line">Events:</span><br><span class="line">  FirstSeen LastSeen  Count From      SubObjectPath Type    Reason      Message</span><br><span class="line">  --------- --------  ----- ----      ------------- --------  ------      -------</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-fws8g</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-321pk</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-2pxq1</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-kl2tj</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-wfw8q</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-lz0hq</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-0dck0</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-0lm8k</span><br><span class="line">  1m    1m    1 &#123;job-controller &#125;     Normal    SuccessfulCreate  Created pod: bad-q6ctf</span><br><span class="line">  1m    1s    16  &#123;job-controller &#125;     Normal    SuccessfulCreate  (events with common reason combined)</span><br></pre></td></tr></table></figure></p>
+<p>因为任务快速失败。Kubernetes认为任务没能成功启动，尝试创建新的容器以恢复这个失败，导致的Cluster会在短时间创建大量的容器，这样的结果可能会消耗大量的计算资源。</p>
+<p>在Spec中使用.spec.activeDeadlineSeconds来避免这个问题。这个参数定了等待多长时间重试失败的Job。</p>
+<hr>
+<blockquote>
+<p>来源: <a href="https://my.oschina.net/taogang/blog/1809904" target="_blank" rel="noopener">https://my.oschina.net/taogang/blog/1809904</a></p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Architect </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Architect </tag>
+            
+            <tag> Container </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[如何才能成为一个优秀架构师]]></title>
+      <url>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</url>
+      <content type="html"><![CDATA[<h2 id="知识面要广"><a href="#知识面要广" class="headerlink" title="知识面要广"></a>知识面要广</h2><p>其实我认为做架构师的，从来都是CTO储备，因为需要涉及的能力太广。</p>
+<blockquote>
+<p><strong>做架构，其实最简单的理解就是一句话，就是在有各种限制的情况下想办法解决问题。</strong></p>
+</blockquote>
+<p>所谓的限制就是<code>性能</code>、<code>稳定性</code>、<code>开发效率</code>、<code>可维护性</code>等因素。</p>
+<ul>
+<li><p>百度贴吧这种应用场景，每天可能有几十亿次的访问，几千万甚至上亿次的写入。肯定是性能要求为先，可能为了做性能的提升牺牲一部分开发的效率。</p>
+</li>
+<li><p>银行的应用场景，不是非常在意用户的体验和访问延迟，但是对于数据的安全性和一致性非常非常重视。这种时候，肯定是安全和稳定优先，性能后面考虑。</p>
+</li>
+</ul>
+<p>在限制中做权衡，也就是意味着要做大量的选择。但做选择那首先你得知道有哪些选择。</p>
+<p>所谓的性能和安全，除了这几个字之外，具体的技术实施上，总得知道都有哪些方案吧。</p>
+<ul>
+<li><p>例如 Java 体系、PHP 体系、C 体系、还有 Python/Node.js/Golang 等，各自有各自的优势劣势，你总得有过相关开发经验才能做出正确的选择吧。道听途说是没有发言权的。</p>
+</li>
+<li><p>虽然现在数据库用的最多的是MySQL，但是 Oracle/PgSQL 也都有其优势。</p>
+</li>
+<li><p>现在项目几乎没有不用到大数据的，那么大数据的算法至少得有些理解吧，大数据的平台得有些经验吧。</p>
+</li>
+<li><p>玩转整体项目还有许多许多的点，例如代码如何管理、上线部署，如何测试保证Bug率，系统的监控，服务器部署，灰度发布等等。</p>
+</li>
+</ul>
+<p>不要听那些一提架构师就好像多么高大上，做的都是些设计师类似的工作，系统设计、软件设计等。那些都是人云亦云YY出来的。</p>
+<p><strong>没有哪个互联网公司让你去专门做设计，因为互联网公司领导们统统无一例外需要的都是功能的实现，战略战术想法的实现。</strong></p>
+<p><strong>所有的大型系统架构，全部都是基于面临的问题一步一步解决迭代出来的。没有场景会让人一步到位(甚至哪怕提前一段提前量)去设计一套牛逼系统的，因为世界变化太快，项目如果不赶紧实现，明天可能就挂了，哪有那些闲心去给未来几年做设计。</strong></p>
+<p><strong>所以，做架构师最关键的是对整个项目的把控能力，可以让项目高效率的运转。</strong></p>
+<h2 id="卓越的代码能力"><a href="#卓越的代码能力" class="headerlink" title="卓越的代码能力"></a>卓越的代码能力</h2><p>想要成为架构师，首先得是一个优秀的程序员。怎么样才算优秀的程序员呢？</p>
+<p>光写代码不思考、不学习肯定是不行的。</p>
+<p>最明确的，就是得深入掌握各类数据结构、各类设计模式、计算机网络、操作系统、各种常见的架构模式等。这些提的非常多，但是能做到深入理解的我感觉可能没几个人。</p>
+<p>包括我自己，当年刚开始看设计模式的时候，1个多月就感觉已经全部理解了。但是之后每次或者复习的时候，或者看到写的非常好的代码的时候，重新去温故此方面的知识，都能感到有新的收获、都会有更深的领悟。</p>
+<p>而且，理解也仅仅是开始。如何完完全全的融入自己的代码中，才是关键。</p>
+<p>写代码经常也同样充斥着架构设计的感觉。其实我认为，程序员写代码叫编码或Coding，而架构师写代码就叫架构设计。</p>
+<p>因为两者写代码时考虑问题的角度完全不同。程序员可能更多考虑的是如何实现功能，而优秀的程序员才可能会考虑的例如<code>性能</code>、<code>可读性</code>、<code>可维护性</code>等问题。</p>
+<p>而这些对于架构师来说则是必须考虑的，考虑的纬度经常还会更多一些。</p>
+<p>所以，不要想着一步到位的跳过优秀程序员而直接成为架构师。不现实。</p>
+<h2 id="对某些相关领域要有深度"><a href="#对某些相关领域要有深度" class="headerlink" title="对某些相关领域要有深度"></a>对某些相关领域要有深度</h2><p>刚才讲了技术的广度，但是如果什么都知道，但是什么也不善长，没有什么精通的。那依然只能做个程序员。</p>
+<p>那么哪些领域算是关键的领域呢？</p>
+<p>到此基本就由业务方向的不同而区分不同的架构师了。</p>
+<p>例如金融领域的架构师，可能需要金融知识。</p>
+<p>例如大数据领域，可能对 Hadoop/Spark/Hive 之类的大数据领域知识要求深一些。</p>
+<p>再如高并发领域，可能对整个系统的性能优化，分布式系统设计等更深入一些。</p>
+<h2 id="要有技术洞见"><a href="#要有技术洞见" class="headerlink" title="要有技术洞见"></a>要有技术洞见</h2><p>这个技术洞见是借用《重新定义公司》里的词。换个易理解的词，就是技术上的远见卓识。</p>
+<p>以事后诸葛亮的方式举几个例子：</p>
+<ol>
+<li><p>当年的京东如果选用的不是Windows平台，可能发展比现在好不少。</p>
+</li>
+<li><p>百度如果不是李XX的目光短浅，总是比市场慢几拍，现在也不致于被AT远远甩开。</p>
+</li>
+<li><p>……</p>
+</li>
+</ol>
+<p>不要感觉好像很虚幻，如果你现在身为一个创业公司的架构师，你现在的一个貌似正确的决策可能直接导致未来公司的大量损失，甚至倒闭。</p>
+<h2 id="管理能力"><a href="#管理能力" class="headerlink" title="管理能力"></a>管理能力</h2><p>架构师少有不带项目、不带人的，所以管理能力肯定也是必须。</p>
+<p>但管理能力是个很大的主题，这里就不多说了。</p>
+<hr>
+<p>回头看看，其实写的也都是些方向性的东西。</p>
+<p>但是由于架构师职业的特殊性，真的很难给出一条具体的道路，只要按照这个道路走下去就能成为优秀的架构师。</p>
+<p>但有些原则性的方法还是有的：</p>
+<p>作为架构师，其实所谓的设计能力并非关键，因为一个项目完全凭空设计的机会很少，而且也都可以基于当时情况的权衡，直接使用别人们的设计方案的组合。</p>
+<p>这就是为什么看架构师相关的帖子看多了，就会发现所谓的分布式架构、大型网站架构，基本来来回回就那么几种。导致是个人出来都能喊两句架构怎样怎样。</p>
+<p>那么关键的是什么？是项目的把控能力，以及面对具体问题的解决能力。</p>
+<p>而要锻炼项目的把控能力和解决一些具体问题的能力，有时候光靠公司里的项目是不够的。</p>
+<p>因为公司项目中你往往只是其中的一员，只能做某个具体的工作，例如前端JS、APP、后端业务等。项目整体的运转情况你一般是了解不到的。即使运气好，项目负责人对此的把控很到位，而且还愿意全部讲解给你听，但毕竟很多环境你没动手做出，光凭别人说是不大可能有深刻的理解的。</p>
+<p><strong>那怎么办？你应该自己抽空全新做一个自己的项目，例如 BBS网站、有后台的APP等。网站或APP本身不重要，重要是你要自己开发、自己搞定上线系统、搞定监控系统、搞定发布系统、搞定测试系统等等。</strong></p>
+<p><strong>就是像一个正式公司的正式产品一样对待这个自己的项目</strong></p>
+<p>这样几个回合下来之后，你就会发现，你对整个项目的感知度提高极大。不再像以前那样，对项目除了自己负责的部分，其它都是迷迷糊糊的。</p>
+<hr>
+<blockquote>
+<p>来源: <a href="https://zhuanlan.zhihu.com/p/27979747" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/27979747</a></p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Architect </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Architect </tag>
+            
+            <tag> Humanity </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[阿里云开启 IPv6 支持]]></title>
+      <url>http://www.robbs.win/2017-05-01/Aliyun-Open-IPv6.html</url>
+      <content type="html"><![CDATA[<h2 id="开启限制"><a href="#开启限制" class="headerlink" title="开启限制"></a>开启限制</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysctl.conf</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 增加配置</span><br><span class="line">net.ipv6.conf.all.disable_ipv6 = 0</span><br><span class="line">net.ipv6.conf.default.disable_ipv6 = 0</span><br><span class="line">net.ipv6.conf.lo.disable_ipv6 = 0</span><br></pre></td></tr></table></figure>
+<h2 id="查看是否生效"><a href="#查看是否生效" class="headerlink" title="查看是否生效"></a>查看是否生效</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 信息</span><br><span class="line">eth1: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 114.55.127.xxx  netmask 255.255.252.0  broadcast 114.55.119.255</span><br><span class="line">        inet6 fe80::219:3eff:fexx:32ec  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether 00:16:3e:01:49:37  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 68348  bytes 41664492 (39.7 MiB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 18859  bytes 3632548 (3.4 MiB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure>
+<p><code>fe80::219:3eff:fexx:32ec</code> 是IPv6地址。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Aliyun </tag>
+            
+            <tag> IPv6 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Ubuntu16.04 安装 MongoDB]]></title>
+      <url>http://www.robbs.win/2017-04-25/Install-MongoDB-on-ubuntu16-04.html</url>
+      <content type="html"><![CDATA[<h2 id="添加软件源"><a href="#添加软件源" class="headerlink" title="添加软件源"></a>添加软件源</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-3.4.list</span><br></pre></td></tr></table></figure>
+<h2 id="安装MongoDB"><a href="#安装MongoDB" class="headerlink" title="安装MongoDB"></a>安装MongoDB</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br><span class="line">apt-get install mongodb-org -y</span><br></pre></td></tr></table></figure>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">service mongod start</span><br><span class="line">service mongod stop</span><br></pre></td></tr></table></figure>
+<h2 id="创建帐号密码"><a href="#创建帐号密码" class="headerlink" title="创建帐号密码"></a>创建帐号密码</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加配置文件</span></span><br><span class="line">vim /ect/mongod.conf</span><br><span class="line"></span><br><span class="line">security:  </span><br><span class="line">authorization: "enabled"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启服务</span></span><br><span class="line">service mongod stop</span><br><span class="line">service mongod start</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 进入数据库</span></span><br><span class="line">mongo</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> use admin</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> db.createUser(&#123;user:<span class="string">"user_test"</span>,<span class="built_in">pwd</span>:<span class="string">"pwd_test"</span>,roles:[<span class="string">"root"</span>]&#125;) <span class="comment"># 创建账号  </span></span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> db.auth(<span class="string">"user_test"</span>,<span class="string">"pwd_test"</span>) <span class="comment"># 就可以进入了</span></span></span><br></pre></td></tr></table></figure>
+]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Ubuntu </tag>
+            
+            <tag> MongoDB </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[安装和部署AirFlow]]></title>
+      <url>http://www.robbs.win/2017-01-19/Install-And-Deploy-AirFlow.html</url>
+      <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>AirFlow 是采用 Python 编写的一个开源工作流调度器，它有一个丰富的UI。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">aptitude install python</span><br><span class="line">aptitude install python-dev</span><br><span class="line">aptirude install python-pip</span><br><span class="line">aptitude install libmysqlclient-dev</span><br></pre></td></tr></table></figure>
+<h3 id="AirFlow"><a href="#AirFlow" class="headerlink" title="AirFlow"></a>AirFlow</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install airflow</span><br></pre></td></tr></table></figure>
+<h3 id="Supervisor"><a href="#Supervisor" class="headerlink" title="Supervisor"></a>Supervisor</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aptitude install supervisor</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h3 id="AirFlow-1"><a href="#AirFlow-1" class="headerlink" title="AirFlow"></a>AirFlow</h3><h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">airflow initdb</span><br></pre></td></tr></table></figure>
+<h4 id="添加用户登录"><a href="#添加用户登录" class="headerlink" title="添加用户登录"></a>添加用户登录</h4><p>安装相应模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install &quot;airflow[password]&quot;</span><br></pre></td></tr></table></figure>
+<p>添加配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim airflow.cfg</span><br><span class="line">## 在 [webserver]下 加入</span><br><span class="line">authenticate = True</span><br><span class="line">auth_backend = airflow.contrib.auth.backends.password_auth</span><br></pre></td></tr></table></figure>
+<p>进入airflow目录下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ~/airflow</span><br><span class="line">python</span><br></pre></td></tr></table></figure>
+<p>运行Python命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">import airflow</span><br><span class="line">from airflow import models, settings</span><br><span class="line">from airflow.contrib.auth.backends.password_auth import PasswordUser</span><br><span class="line">user = PasswordUser(models.User())</span><br><span class="line">user.username = &apos;user_name&apos;</span><br><span class="line">user.email = &apos;email@example.com&apos;</span><br><span class="line">user.password = &apos;password&apos;</span><br><span class="line">session = settings.Session()</span><br><span class="line">session.add(user)</span><br><span class="line">session.commit()</span><br><span class="line">session.close()</span><br><span class="line">exit()</span><br></pre></td></tr></table></figure>
+<h4 id="Supervisord"><a href="#Supervisord" class="headerlink" title="Supervisord"></a>Supervisord</h4><p>加入 webserver 和 scheduler 启动管理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/supervisor/conf.d/airflow.conf </span><br><span class="line"></span><br><span class="line">## 加入</span><br><span class="line">[program:airflow_webserver]</span><br><span class="line">command=airflow webserver</span><br><span class="line">user=ubuntu</span><br><span class="line">stderr_logfile=/var/log/airflow/webserver.err.log</span><br><span class="line">stdout_logfile=/var/log/airflow/webserver.out.log</span><br><span class="line">[program:airflow_scheduler]</span><br><span class="line">command=airflow scheduler</span><br><span class="line">user=ubuntu</span><br><span class="line">stderr_logfile=/var/log/airflow/scheduler.err.log</span><br><span class="line">stdout_logfile=/var/log/airflow/scheduler.out.log</span><br></pre></td></tr></table></figure>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ImportError: No module named pidlockfile</span><br><span class="line"></span><br><span class="line">## 解决方案</span><br><span class="line"></span><br><span class="line">aptitude remove python-lockfile</span><br><span class="line">pip install lockfile</span><br><span class="line">ImportError: cannot import name MySqlOperator</span><br><span class="line"></span><br><span class="line">## 解决方案</span><br><span class="line"></span><br><span class="line">pip install airflow[celery]</span><br></pre></td></tr></table></figure>]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Server </tag>
+            
+            <tag> AirFlow </tag>
+            
+            <tag> Supervisord </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Mac OS 下安装 rbenv]]></title>
+      <url>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</url>
+      <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>目前Mac OS 下面有两种Ruby 版本的工具，分别是 RVM 和 rbenv，本文主要介绍如何安装和使用 rbenv，并通过它来管理 Ruby 环境</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">brew install rbenv</span><br><span class="line">brew install ruby-build</span><br><span class="line">brew install rbenv-gemset</span><br><span class="line">brew install rbenv-gem-rehash</span><br></pre></td></tr></table></figure>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">echo &apos;export PATH=&quot;$HOME/.rbenv/bin:$PATH&quot;&apos; &gt;&gt; ~/.bashrc</span><br><span class="line">echo &apos;eval &quot;$(rbenv init -)&quot;&apos; &gt;&gt; ~/.bashrc</span><br><span class="line"></span><br><span class="line"># 如果使用的是 Zsh  </span><br><span class="line">echo &apos;export PATH=&quot;$HOME/.rbenv/bin:$PATH&quot;&apos; &gt;&gt; ~/.zshrc</span><br><span class="line">echo &apos;eval &quot;$(rbenv init -)&quot;&apos; &gt;&gt; ~/.zshrc</span><br></pre></td></tr></table></figure>
+<h3 id="安装Ruby"><a href="#安装Ruby" class="headerlink" title="安装Ruby"></a>安装Ruby</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看可用版本</span></span><br><span class="line">rbenv install --list</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装2.4.0</span></span><br><span class="line">rbenv install 2.4.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看已安装版本</span></span><br><span class="line">rbenv versions</span><br><span class="line"><span class="meta">#</span><span class="bash">  system</span></span><br><span class="line"><span class="meta">#</span><span class="bash">   2.1.5</span></span><br><span class="line"><span class="meta">#</span><span class="bash">   2.2.1</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> * 2.2.4 (<span class="built_in">set</span> by /Users/Robbs/.rbenv/version)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置全局版本</span></span><br><span class="line">rbenv global 2.4.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置本地版本</span></span><br><span class="line">rbenv local 2.4.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 取消设置</span></span><br><span class="line">rbenv local --unset</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置当前终端版本</span></span><br><span class="line">rbenv shell 2.4.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 使用系统Ruby</span></span><br><span class="line">rbenv global system</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 每当切换ruby版本和执行bundle install之后必须执行这个命令</span></span><br><span class="line">rbenv rehash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 卸载Ruby</span></span><br><span class="line">rbenv uninstall 2.4.0</span><br></pre></td></tr></table></figure>
+<h3 id="切换镜像"><a href="#切换镜像" class="headerlink" title="切换镜像"></a>切换镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rbenv-china-mirror</span></span><br><span class="line">git clone https://github.com/andorchen/rbenv-china-mirror.git ~/.rbenv/plugins/rbenv-china-mirror</span><br></pre></td></tr></table></figure>]]></content>
+      
+        <categories>
+            
+            <category> Software </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> rbenv </tag>
+            
+            <tag> brew </tag>
+            
+            <tag> ruby </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Mac OS 基础软件]]></title>
+      <url>http://www.robbs.win/2016-12-26/Mac-OSX-Basic-SoftWare.html</url>
+      <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>主要介绍在 Mac OS 下使用的基本的软件。</p>
+<h2 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h2><h3 id="Command-Line-Tool"><a href="#Command-Line-Tool" class="headerlink" title="Command Line Tool"></a>Command Line Tool</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br></pre></td></tr></table></figure>
+<h3 id="Homebrew"><a href="#Homebrew" class="headerlink" title="Homebrew"></a>Homebrew</h3><p><a href="http://brew.sh/," target="_blank" rel="noopener">Homebrew</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="Oh-My-Zsh"><a href="#Oh-My-Zsh" class="headerlink" title="Oh My Zsh"></a>Oh My Zsh</h3><p><a href="https://github.com/robbyrussell/oh-my-zsh" target="_blank" rel="noopener">Oh My Zsh</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install zsh</span><br><span class="line"></span><br><span class="line">sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="Prezto"><a href="#Prezto" class="headerlink" title="Prezto"></a>Prezto</h3><p><a href="https://github.com/sorin-ionescu/prezto" target="_blank" rel="noopener">Prezto</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># Launch Zsh:</span><br><span class="line">zsh</span><br><span class="line"></span><br><span class="line">#Clone the repository:</span><br><span class="line">git clone --recursive https://github.com/sorin-ionescu/prezto.git &quot;$&#123;ZDOTDIR:-$HOME&#125;/.zprezto&quot;</span><br><span class="line"></span><br><span class="line">#Create a new Zsh configuration by copying the Zsh configuration files provided:</span><br><span class="line">setopt EXTENDED_GLOB</span><br><span class="line">for rcfile in &quot;$&#123;ZDOTDIR:-$HOME&#125;&quot;/.zprezto/runcoms/^README.md(.N); do</span><br><span class="line">  ln -s &quot;$rcfile&quot; &quot;$&#123;ZDOTDIR:-$HOME&#125;/.$&#123;rcfile:t&#125;&quot;</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># Set Zsh as your default shell:</span><br><span class="line">chsh -s /bin/zsh</span><br></pre></td></tr></table></figure>
+<h3 id="Brew-Cask"><a href="#Brew-Cask" class="headerlink" title="Brew Cask"></a>Brew Cask</h3><p><a href="https://caskroom.github.io/" target="_blank" rel="noopener">Homebrew Cask</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew tap phinze/cask</span><br><span class="line">brew install brew-cask</span><br></pre></td></tr></table></figure>
+<h3 id="TotalTerminal"><a href="#TotalTerminal" class="headerlink" title="TotalTerminal"></a>TotalTerminal</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew cask install totalterminal</span><br></pre></td></tr></table></figure>
+<h3 id="LaunchRocket"><a href="#LaunchRocket" class="headerlink" title="LaunchRocket"></a>LaunchRocket</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew cask install launchrocket</span><br></pre></td></tr></table></figure>
+<h3 id="shadowssocks"><a href="#shadowssocks" class="headerlink" title="shadowssocks"></a>shadowssocks</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/shadowsocks/shadowsocks-iOS/releases</span><br></pre></td></tr></table></figure>
+<h3 id="alfred-3"><a href="#alfred-3" class="headerlink" title="alfred 3"></a>alfred 3</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew cask install alfred</span><br></pre></td></tr></table></figure>
+<h3 id="moom"><a href="#moom" class="headerlink" title="moom"></a>moom</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew cask install moom</span><br></pre></td></tr></table></figure>]]></content>
+      
+        <categories>
+            
+            <category> Software </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Software </tag>
+            
+            <tag> OSX </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Rails 缓存简介]]></title>
+      <url>http://www.robbs.win/2016-11-18/Raiils-Cache-Simple.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>合理的使用缓存可以很大程度上提高网站性能，是网站性能优化必不可少的一部分。</p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><ul>
+<li><p>Model 层缓存</p>
+<p>通过手动设置可以将部分查询结果存储在对应的缓存系统中。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rails.cache.fetch(<span class="string">'all_products'</span>, <span class="symbol">expires_in:</span> <span class="number">1</span>.days) <span class="keyword">do</span> </span><br><span class="line">  Product.all.to_a</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p><strong>需要确认执行结果是否为最终的结果集</strong></p>
+</li>
+</ul>
+<ul>
+<li><h4 id="Controller-层缓存"><a href="#Controller-层缓存" class="headerlink" title="Controller 层缓存"></a>Controller 层缓存</h4><ul>
+<li><h5 id="Action-缓存"><a href="#Action-缓存" class="headerlink" title="Action 缓存"></a>Action 缓存</h5><p>缓存 Action Response，借助 Fragement Cache 和 Callback 实现。</p>
+<p>可通过 before_action 加入各种验证机制。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">before_action :authentication, only: :show</span><br><span class="line">cache_action :show, expires_in: 1.hour</span><br></pre></td></tr></table></figure>
+<p><strong>该方法在 Rails4 已经移除了，可通过Gem包开启</strong></p>
+</li>
+<li><h5 id="Page-缓存-页面缓存"><a href="#Page-缓存-页面缓存" class="headerlink" title="Page 缓存 (页面缓存)"></a>Page 缓存 (页面缓存)</h5><p>将页面缓存成静态页面，无法进行权限认证等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class ProductsController &lt; ActionController</span><br><span class="line">  caches_page :index</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p><strong>该方法在 Rails4 已经移除了，可通过Gem包开启</strong></p>
+</li>
+</ul>
+</li>
+<li><h4 id="View-层缓存"><a href="#View-层缓存" class="headerlink" title="View 层缓存"></a>View 层缓存</h4><ul>
+<li><h5 id="Fragement-Cache-片段缓存"><a href="#Fragement-Cache-片段缓存" class="headerlink" title="Fragement Cache (片段缓存)"></a>Fragement Cache (片段缓存)</h5><p>随着页面复杂的程度的提高，已经无法做整页缓存，只能将其切割成不同的片段。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- cache(&apos;xxx&apos; , expires_in: 1.days ) do </span><br><span class="line">  %ul</span><br><span class="line">    = @product.name</span><br></pre></td></tr></table></figure>
+<p><strong>片段缓存可以通过嵌套使用的方式形成特殊的俄罗斯套娃(Russian Doll Caching)</strong></p>
+</li>
+</ul>
+</li>
+<li><h4 id="SQL-缓存"><a href="#SQL-缓存" class="headerlink" title="SQL 缓存"></a>SQL 缓存</h4><p>这是 Rails 框架自带的一个特性，会缓存每一次查询的结果集。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class ProductsController &lt; ActionController</span><br><span class="line">  def index</span><br><span class="line">    # First Query</span><br><span class="line">    @products = Product.all</span><br><span class="line">    </span><br><span class="line">    # Second Query (Cache)</span><br><span class="line">    @products = Product.all</span><br><span class="line">  end</span><br></pre></td></tr></table></figure>
+<p>当第二次查询时，会直接从内存中读取第一次查询缓存入内存的结果集。</p>
+<p><strong>Tips: 缓存的有效时间是 action 的生命周期</strong></p>
+</li>
+</ul>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启缓存</span></span><br><span class="line">config.action_controller.perform_caching = <span class="literal">true</span></span><br><span class="line"><span class="comment"># 缓存存储方式</span></span><br><span class="line">config.cache_store = :memory_store  <span class="comment"># memory_store mem_cache_store file_store</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      
+        <categories>
+            
+            <category> Rails </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Ruby </tag>
+            
+            <tag> Cache </tag>
+            
+            <tag> Rails </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Ubuntu 上安装使用 DynamoDB]]></title>
+      <url>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</url>
+      <content type="html"><![CDATA[<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ol>
+<li><h4 id="Java-SDK"><a href="#Java-SDK" class="headerlink" title="Java SDK"></a>Java SDK</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aptitude install openjdk-8-jdk</span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="安装解压软件"><a href="#安装解压软件" class="headerlink" title="安装解压软件"></a>安装解压软件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装解压软件</span></span><br><span class="line">aptitude install unzip</span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="下载安装-DynamoDB"><a href="#下载安装-DynamoDB" class="headerlink" title="下载安装 DynamoDB"></a>下载安装 DynamoDB</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载压缩包</span></span><br><span class="line">wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.zip </span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">unzip ./dynamodb_local_latest.zip </span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看帮助</span></span><br><span class="line">java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="javascript-shell"><a href="#javascript-shell" class="headerlink" title="javascript shell"></a>javascript shell</h4><p><a href="http://127.0.0.1:8000/shell/" target="_blank" rel="noopener">http://127.0.0.1:8000/shell/</a></p>
+</li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> Software </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> DynamoDB </tag>
+            
+            <tag> Software </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[安装 Shadowsocks 服务器端]]></title>
+      <url>http://www.robbs.win/2016-11-08/Install-Shadowsocks-Server.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>随着国内『墙』的越来越『高』，掌握一门方便、快捷、便宜的『飞檐走壁』技巧成为了刚需。下面我们介绍一款轻量、多平台、安装配置十分简单的开源软件 <a href="https://github.com/shadowsocks/shadowsocks" title="Shadowsocks" target="_blank" rel="noopener">Shadowsocks</a> 。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ul>
+<li>VPS 一台<br>  可以使用 <a href="https://www.digitalocean.com" target="_blank" rel="noopener">digitalocean</a> 的 SFO 机房</li>
+<li>Python 环境</li>
+</ul>
+<h3 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h3><ol>
+<li><h4 id="pip-安装法"><a href="#pip-安装法" class="headerlink" title="pip 安装法"></a>pip 安装法</h4><ul>
+<li><p>安装 pip</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install python-pip</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装 shadowsocks</p>
+   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install shadowsocks</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/shadowsocks.json</span><br></pre></td></tr></table></figure>
+<p>  加入以下内容<br>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"server"</span>: <span class="string">"my_server_ip"</span>,               <span class="comment"># 服务器IP</span></span><br><span class="line">    <span class="string">"server_port"</span>: 8000,                    <span class="comment"># 开启端口</span></span><br><span class="line">    <span class="string">"local_address"</span>: <span class="string">"x.x.x.x"</span>,             <span class="comment"># 服务器本地地址</span></span><br><span class="line">    <span class="string">"local_port"</span>: 1080,                     <span class="comment"># 服务器本地端口</span></span><br><span class="line">    <span class="string">"password"</span>: <span class="string">"mypassword"</span>,               <span class="comment"># 连接密码</span></span><br><span class="line">    <span class="string">"timeout"</span>: 300,                         <span class="comment"># 连接超时时间</span></span><br><span class="line">    <span class="string">"method"</span>: <span class="string">"rc4-md5"</span></span><br><span class="line">    <span class="string">"fast_open"</span>: <span class="literal">true</span>                       <span class="comment"># 是否开启TCP_FASTOPEN，需要系统开启支持</span></span><br><span class="line">    <span class="string">"workers"</span>: 5                            <span class="comment"># 进程数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="系统优化"><a href="#系统优化" class="headerlink" title="系统优化"></a>系统优化</h3><p>  确认系统内核是 3.7.1 以上<br>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">uname -r</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4.4.0-45-generic</span></span><br></pre></td></tr></table></figure></p>
+<ol>
+<li><h4 id="系统文件描述符的最大限数"><a href="#系统文件描述符的最大限数" class="headerlink" title="系统文件描述符的最大限数"></a>系统文件描述符的最大限数</h4><ul>
+<li><p>Shadowsocks 每次启动前</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -SHn 51200</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>系统启动时生效</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 添加</span></span><br><span class="line">* soft nofile 51200</span><br><span class="line">* hard nofile 51200</span><br><span class="line"><span class="comment"># 第一列 是用户或者用户组</span></span><br><span class="line"><span class="comment"># 第二列 hard: 硬限制，soft: 软件限制，一般来说 soft 要比 hard 小，超过 soft 报警，hard 是底线</span></span><br><span class="line"><span class="comment"># 第三列 nofile 打开文件数</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim  /etc/pam.d/common-session</span><br><span class="line"><span class="comment">#添加一行</span></span><br><span class="line">session required pam_limits.so</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="comment"># 在文件末尾加入</span></span><br><span class="line"><span class="built_in">ulimit</span> -SHn 51200</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><h4 id="调整内核参数"><a href="#调整内核参数" class="headerlink" title="调整内核参数"></a>调整内核参数</h4>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysctl.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加配置</span></span><br><span class="line"></span><br><span class="line">fs.file-max = 51200                            <span class="comment"># max open files</span></span><br><span class="line"></span><br><span class="line"> net.core.rmem_max = 67108864                  <span class="comment"># max read buffer</span></span><br><span class="line"> net.core.wmem_max = 67108864                  <span class="comment"># max write buffer</span></span><br><span class="line"> net.core.netdev_max_backlog = 250000          <span class="comment"># max processor input queue</span></span><br><span class="line"> net.core.somaxconn = 4096                     <span class="comment"># max backlog</span></span><br><span class="line"></span><br><span class="line"> net.ipv4.tcp_syncookies = 1                   <span class="comment"># resist SYN flood attacks</span></span><br><span class="line"> net.ipv4.tcp_tw_reuse = 1                     <span class="comment"># reuse timewait sockets when safe</span></span><br><span class="line"> net.ipv4.tcp_tw_recycle = 0                   <span class="comment"># turn off fast timewait sockets recycling</span></span><br><span class="line"> net.ipv4.tcp_fin_timeout = 30                 <span class="comment"># short FIN timeout</span></span><br><span class="line"> net.ipv4.tcp_keepalive_time = 1200            <span class="comment"># short keepalive time</span></span><br><span class="line"> net.ipv4.ip_local_port_range = 10000 65000    <span class="comment"># outbound port range</span></span><br><span class="line"> net.ipv4.tcp_max_syn_backlog = 8192           <span class="comment"># max SYN backlog</span></span><br><span class="line"> net.ipv4.tcp_max_tw_buckets = 5000            <span class="comment"># max timewait sockets held by system simultaneously</span></span><br><span class="line"> net.ipv4.tcp_rmem = 4096 87380 67108864       <span class="comment"># TCP receive buffer</span></span><br><span class="line"> net.ipv4.tcp_wmem = 4096 65536 67108864       <span class="comment"># TCP write buffer</span></span><br><span class="line"> net.ipv4.tcp_mtu_probing = 1                  <span class="comment"># turn on path MTU discovery</span></span><br><span class="line"></span><br><span class="line"> net.ipv4.tcp_fastopen = 3                     <span class="comment"># enable TCP_FASTOPEN </span></span><br><span class="line"></span><br><span class="line"> net.ipv4.tcp_congestion_control = hybla</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> <span class="comment">#使配置生效</span></span><br><span class="line"> sysctl -p</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>TCP_FASTOPEN<br>服务端和客户端Linux内核版本必须新于 3.7.1</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看是否生效</span></span><br><span class="line">sysctl net.ipv4.tcp_fastopen</span><br><span class="line"></span><br><span class="line"><span class="comment"># net.ipv4.tcp_fastopen = 3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>TCP拥塞控制算法<br>Linux 中提供了多套TCP拥塞控制算法。</p>
+<ol>
+<li>reno是最基本的拥塞控制算法，也是TCP协议的实验原型。</li>
+<li>bic适用于rtt较高但丢包极为罕见的情况，比如北美和欧洲之间的线路，这是2.6.8到2.6.18之间的Linux内核的默认算法。</li>
+<li>cubic是修改版的bic，适用环境比bic广泛一点，它是2.6.19之后的linux内核的默认算法</li>
+<li>hybla适用于高延时、高丢包率的网络，比如卫星链路——同样适用于中美之间的链路。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看系统支持的算法</span></span><br><span class="line">sysctl net.ipv4.tcp_available_congestion_control</span><br><span class="line"></span><br><span class="line"><span class="comment"># net.ipv4.tcp_available_congestion_control = hybla cubic reno</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><ul>
+<li><p>直接启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssserver -p 8000 -k password -m rc4-md5 -d &#123;start | stop&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置文件启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssserver -c /etc/shadowsocks.json -d &#123;start | stop&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>采用 digitalocean 的 SFO2 机房 300+ms 延迟的情况下，能够很流畅的查看Youtube的 1080P （湖南电信）</p>
+</li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Server </tag>
+            
+            <tag> Shadowsocks </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[使用 Mina 部署 Yii2 项目]]></title>
+      <url>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="Mina"><a href="#Mina" class="headerlink" title="Mina"></a>Mina</h3><p>  Really fast deployer and server automation tool.<br>  Mina 是一款快速部署工具。它部署脚本简单，扩展性强，部署速度快 (只有一次 SSH 连接)，部署信息简单。</p>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><h3 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h3><ul>
+<li>一个 <a href="/2016-10-25/Create-Yii2-Project.html" title="创建 Yii2 项目">Yii2</a> 的项目仓库</li>
+<li>一台服务器安装了<a href="/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html">基础环境</a>的VPS</li>
+<li>一台安装有 Ruby 环境的开发机<h3 id="安装Mina"><a href="#安装Mina" class="headerlink" title="安装Mina"></a>安装Mina</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install mina</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="初始化配置"><a href="#初始化配置" class="headerlink" title="初始化配置"></a>初始化配置</h3>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mina init</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成配置文件</span></span><br><span class="line"><span class="comment"># ├── config</span></span><br><span class="line"><span class="comment"># │   └── deploy.rb</span></span><br></pre></td></tr></table></figure>
+<h3 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h3>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim deploy.rb</span><br></pre></td></tr></table></figure>
+<p>   我的配置<br>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">require <span class="string">'mina/git'</span>  <span class="comment"># git 支持</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Basic settings:</span></span><br><span class="line"><span class="comment">#   domain       - The hostname to SSH to.</span></span><br><span class="line"><span class="comment">#   deploy_to    - Path to deploy into.</span></span><br><span class="line"><span class="comment">#   repository   - Git repo to clone from. (needed by mina/git)</span></span><br><span class="line"><span class="comment">#   branch       - Branch name to deploy. (needed by mina/git)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> :deploy_to, <span class="string">'/var/www/html/test'</span>             <span class="comment"># VPS 上用来发布的目录</span></span><br><span class="line"><span class="built_in">set</span> :repository, <span class="string">'git@github.com:xxx/test.git'</span>   <span class="comment"># github 仓库地址</span></span><br><span class="line"><span class="built_in">set</span> :branch, <span class="string">'develop'</span>                           <span class="comment"># 用来发布的分支</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> :keep_releases, 4              <span class="comment"># 保留的发布版本数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.</span></span><br><span class="line"><span class="comment"># They will be linked in the 'deploy:link_shared_paths' step.</span></span><br><span class="line"><span class="built_in">set</span> :shared_paths, [<span class="string">'vendor'</span>, <span class="string">'runtime'</span>, <span class="string">'web/assets'</span>]    <span class="comment"># 设置共享目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Optional settings:</span></span><br><span class="line"><span class="comment">#   set :user, 'foobar'    # Username in the server to SSH to.</span></span><br><span class="line"><span class="comment">#   set :port, '30000'     # SSH port number.</span></span><br><span class="line"><span class="comment">#   set :forward_agent, true     # SSH forward_agent.</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> :user, <span class="string">'ubuntu'</span>                              <span class="comment"># 登录 VPS 的用户名</span></span><br><span class="line"><span class="built_in">set</span> :domain, <span class="string">'x.x.x.x'</span>                           <span class="comment"># VPS 的 IP 地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This task is the environment that is loaded for most commands, such as</span></span><br><span class="line"><span class="comment"># `mina deploy` or `mina rake`.</span></span><br><span class="line">task :environment <span class="keyword">do</span></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="comment"># Put any custom mkdir's in here for when `mina setup` is ran.</span></span><br><span class="line"><span class="comment"># For Rails apps, we'll make some of the shared paths that are shared between</span></span><br><span class="line"><span class="comment"># all releases.</span></span><br><span class="line">task :setup =&gt; :environment <span class="keyword">do</span></span><br><span class="line">  <span class="comment"># 项目初始化，生成共享文件夹，安装 Yii2 Composer 支持</span></span><br><span class="line">  queue! %[mkdir -p <span class="string">"#&#123;deploy_to&#125;/#&#123;shared_path&#125;/runtime"</span>]</span><br><span class="line">  queue! %[mkdir -p <span class="string">"#&#123;deploy_to&#125;/#&#123;shared_path&#125;/vendor"</span>]</span><br><span class="line">  queue! %[mkdir -p <span class="string">"#&#123;deploy_to&#125;/#&#123;shared_path&#125;/web/assets"</span>]</span><br><span class="line">  queue! %[chmod -R 777 <span class="string">"#&#123;deploy_to&#125;/#&#123;shared_path&#125;/runtime"</span>]</span><br><span class="line">  queue! %[chmod -R 777 <span class="string">"#&#123;deploy_to&#125;/#&#123;shared_path&#125;/web/assets"</span>]</span><br><span class="line">  queue <span class="string">'composer global require "fxp/composer-asset-plugin:^1.2.0"'</span></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">desc <span class="string">"Deploys the current version to the server."</span></span><br><span class="line">task :deploy =&gt; :environment <span class="keyword">do</span></span><br><span class="line">  to :before_hook <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># Put things to run locally before ssh</span></span><br><span class="line">  end</span><br><span class="line">  deploy <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># Put things that will set up an empty directory into a fully set-up</span></span><br><span class="line">    <span class="comment"># instance of your project.</span></span><br><span class="line">    invoke :<span class="string">'git:clone'</span>                          <span class="comment"># 更新代码</span></span><br><span class="line">    invoke :<span class="string">'deploy:link_shared_paths'</span>           <span class="comment"># 链接共享目录</span></span><br><span class="line">    queue <span class="string">'chmod -R 755 yii'</span>                     <span class="comment"># 权限 </span></span><br><span class="line">    queue <span class="string">'composer install'</span>                     <span class="comment"># 安装Composer包</span></span><br><span class="line">    queue <span class="string">'./yii migrate'</span>                        <span class="comment"># 数据库迁移</span></span><br><span class="line">    quequ <span class="string">'rm -rf runtime/cache/*'</span>               <span class="comment"># 清空缓存</span></span><br><span class="line">    quequ <span class="string">'service nginx restart'</span>                <span class="comment"># 重启 Nginx</span></span><br><span class="line">    quequ <span class="string">'service php7.0-fpm restart'</span>           <span class="comment"># 重启 PHP</span></span><br><span class="line">    invoke :<span class="string">'deploy:cleanup'</span>                     <span class="comment"># 清除多余的发布</span></span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用于回滚到上一个版本</span></span><br><span class="line">desc <span class="string">"Rollback to previous verison."</span></span><br><span class="line">task :rollback =&gt; :environment <span class="keyword">do</span></span><br><span class="line">  queue %[<span class="built_in">echo</span> <span class="string">"----&gt; Start to rollback"</span>]</span><br><span class="line">  queue %[<span class="keyword">if</span> [ $(ls <span class="comment">#&#123;deploy_to&#125;/releases | wc -l) -gt 1 ]; then echo "----&gt;Relink to previos release" &amp;&amp; unlink #&#123;deploy_to&#125;/current &amp;&amp; ln -s #&#123;deploy_to&#125;/releases/"$(ls #&#123;deploy_to&#125;/releases | tail -2 | head -1)" #&#123;deploy_to&#125;/current &amp;&amp; echo "Remove old releases" &amp;&amp; rm -rf #&#123;deploy_to&#125;/releases/"$(ls #&#123;deploy_to&#125;/releases | tail -1)" &amp;&amp; echo "$(ls #&#123;deploy_to&#125;/releases | tail -1)" &gt; #&#123;deploy_to&#125;/last_version &amp;&amp; echo "Done. Rollback to v$(cat #&#123;deploy_to&#125;/last_version)" ; else echo "No more release to rollback" ; fi]</span></span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<h3 id="初始化部署环境"><a href="#初始化部署环境" class="headerlink" title="初始化部署环境"></a>初始化部署环境</h3> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mina setup</span><br></pre></td></tr></table></figure>
+<p> 运行后会在配置的发布目录中创建特有的发布目录结构，并执行配置中 <code>setup</code> 部分。</p>
+<h3 id="修改-Nginx"><a href="#修改-Nginx" class="headerlink" title="修改 Nginx"></a>修改 Nginx</h3>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  test.com;</span><br><span class="line">    index index.html index.htm index.php;</span><br><span class="line">    root /var/www/html/<span class="built_in">test</span>/current;    <span class="comment"># 在发布目录上增加 current</span></span><br></pre></td></tr></table></figure>
+<h3 id="开始部署"><a href="#开始部署" class="headerlink" title="开始部署"></a>开始部署</h3><p> 在每一次需要部署时运行以下命令<br>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mina deploy</span><br></pre></td></tr></table></figure></p>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ul>
+<li>将发布的开发机加入到 VPS 的免密码登录配置</li>
+<li>将 VPS 的 SSH Key 加入到 github 仓库的  Deploy keys 内</li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Develop </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> PHP </tag>
+            
+            <tag> Yii2 </tag>
+            
+            <tag> Mina </tag>
+            
+            <tag> Deploy </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[创建 Yii2 项目]]></title>
+      <url>http://www.robbs.win/2016-10-25/Create-Yii2-Project.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="Yii"><a href="#Yii" class="headerlink" title="Yii"></a>Yii</h3><p>  <a href="http://www.yiiframework.com/" target="_blank" rel="noopener">Yii</a> 是一个高性能的，适用于开发 WEB2.0 应用的 PHP 框架。<br>  Yii 自带了丰富的功能 ，包括 MVC，DAO/ActiveRecord，I18N/L10N，缓存，身份验证和基于角色的访问控制，脚手架，测试等，可显著缩短开发时间。</p>
+<h2 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h2><h3 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h3><ul>
+<li><a href="/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html">PHP运行环境</a></li>
+<li><p>Composer 环境</p>
+<ul>
+<li><p>Mac OS X</p>
+<pre><code><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install composer</span><br></pre></td></tr></table></figure>
+</code></pre></li>
+<li><p>Ubuntu</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">curl -sS https://getcomposer.org/installer | php -d detect_unicode=Off </span><br><span class="line"><span class="comment"># 全局</span></span><br><span class="line">mv composer.phar /usr/<span class="built_in">local</span>/bin/composer </span><br><span class="line"><span class="comment"># 权限</span></span><br><span class="line">chmod a+x /usr/<span class="built_in">local</span>/bin/composer</span><br><span class="line"><span class="comment"># 更新</span></span><br><span class="line">composer self-update</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><ol>
+<li><h4 id="Composer-安装"><a href="#Composer-安装" class="headerlink" title="Composer 安装"></a>Composer 安装</h4><p>  安装composer-asset-plugin插件</p>
+   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 切换国内镜像(http://pkg.phpcomposer.com/)</span></span><br><span class="line">composer config -g repo.packagist composer https://packagist.phpcomposer.com</span><br><span class="line"></span><br><span class="line">composer global require <span class="string">"fxp/composer-asset-plugin:^1.2.0"</span></span><br></pre></td></tr></table></figure>
+<p>   安装基础版</p>
+   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer create-project yiisoft/yii2-app-basic xxx</span><br></pre></td></tr></table></figure>
+<p>   安装高级版</p>
+   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer create-project yiisoft/yii2-app-advanced xxx</span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h4><p>   <a href="https://github.com/yiisoft/yii2/releases/download/2.0.10/yii-basic-app-2.0.10.tgz" target="_blank" rel="noopener">基础班</a><br>   <a href="https://github.com/yiisoft/yii2/releases/download/2.0.10/yii-advanced-app-2.0.10.tgz" target="_blank" rel="noopener">高级版</a></p>
+</li>
+</ol>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The zip extension and unzip <span class="built_in">command</span> are both missing, skipping.</span><br></pre></td></tr></table></figure>
+<p>  解决方案<br>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install php7.0-zip</span><br></pre></td></tr></table></figure></p>
+<hr>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">codeception/base 2.2.3 requires phpunit/phpunit &gt;4.8.20 &lt;5.5 -&gt; satisfiable by phpunit/phpunit</span><br><span class="line">phpunit/phpunit 5.6.2 requires ext-dom * -&gt; the requested PHP extension dom is missing from your system.</span><br></pre></td></tr></table></figure>
+<p>  解决方案<br>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install php7.0-xml</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      
+        <categories>
+            
+            <category> Develop </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> PHP </tag>
+            
+            <tag> Yii2 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Siege 简介]]></title>
+      <url>http://www.robbs.win/2016-10-24/Siege.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>  <a href="https://github.com/JoeDog/siege" title="SIege" target="_blank" rel="noopener">Siege</a> 是Linux 下一款压力测试和评测工具，设计用于 WEB 开发这评估应用在压力下的承受能力；可以配置针对一个 WEB 站点进行多用户的并发访问，记录每个用户所有请求过程的响应时间，并在一定数量的并发访问下重复进行。支持多链接，支持 GET 和 POST 请求。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
+<li><p>Mac OSX</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install siege</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Ubuntu</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aptitude install siege</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="参数介绍"><a href="#参数介绍" class="headerlink" title="参数介绍"></a>参数介绍</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-c:  模拟有Ｎ个用户在并发访问 </span><br><span class="line"></span><br><span class="line">-r:  重复测试运行Ｎ次 </span><br><span class="line">-t:  持续测试时间   默认为分钟   5s(持续5秒)  5 (持续5分钟)</span><br><span class="line"><span class="comment"># -r和-t一般不同时使用</span></span><br><span class="line"></span><br><span class="line">-f:  任务的URL列表  </span><br><span class="line">-i:   随机访问-f指定的url.txt中的url列表项，以此模拟真实的访问情况(随机性)  </span><br><span class="line"></span><br><span class="line">-b:  进行压力测试，请求无需等待   delay=0</span><br><span class="line"></span><br><span class="line">-A:  指定访问的 User-Agent </span><br><span class="line">-H:  指定访问的 Header</span><br><span class="line">-T:  指定访问的 Content-Type</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>siege -c 200 -r 100 http://www.google.com</code><br><code>siege  -c 200 -r 100 -f urls.txt</code><br><code>siege  -c 200 -r 100 -f urls.txt -i</code><br><code>siege -c 200 -r 100 -f urls.txt -i -b</code> delay=0，更准确的压力测试，而不是功能测试<br><code>siege -H &quot;Content-Type:application/json&quot; -c 200 -r 100 -f urls.txt -i -b</code></p>
+</blockquote>
+<h2 id="结果说明"><a href="#结果说明" class="headerlink" title="结果说明"></a>结果说明</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Transactions:		            20 hits            <span class="comment"># 总共测试测试</span></span><br><span class="line">Availability:		            100.00 %           <span class="comment"># 成功次数比</span></span><br><span class="line">Elapsed time:		            1.52 secs          <span class="comment"># 总共耗时</span></span><br><span class="line">Data transferred:	            0.80 MB            <span class="comment"># 总共数据传输</span></span><br><span class="line">Response time:		            0.14 secs          <span class="comment"># 响应耗时</span></span><br><span class="line">Transaction rate:	            13.16 trans/sec    <span class="comment">#  每秒处理请求数</span></span><br><span class="line">Throughput:		            0.52 MB/sec        <span class="comment"># 吞吐率</span></span><br><span class="line">Concurrency:		            1.82               <span class="comment"># 最高并发</span></span><br><span class="line">Successful transactions:            20                 <span class="comment"># 成功请求数</span></span><br><span class="line">Failed transactions:                0                  <span class="comment"># 失败请求数</span></span><br><span class="line">Longest transaction:                0.51               <span class="comment"># 每次传输的最长时间</span></span><br><span class="line">Shortest transaction:               0.05               <span class="comment"># 每次传输的最短时间</span></span><br></pre></td></tr></table></figure>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><blockquote>
+<p>发送 POST 请求时，URL 格式为：<code>http://www.xxxx.com/ POST p1=v1&amp;p2=v2</code></p>
+<p> 如果 URL 中含有空格和中文，要先进行编码</p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Software </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Server </tag>
+            
+            <tag> Siege </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Ubuntu 下增加 Swap]]></title>
+      <url>http://www.robbs.win/2016-10-21/Ubuntu-Swap.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="什么是Swap"><a href="#什么是Swap" class="headerlink" title="什么是Swap"></a>什么是Swap</h3><p>   Linux 系统中的 Swap ，又名交换空间。是类似于 Windows 系统的虚拟内存 (pagefile.sys)，当内存不够用的时候会把一部分硬盘空间虚拟成内存，用来存储内存中暂时不使用的数据。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ol>
+<li><h4 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">free -m</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:          3952       2035       1916          9        217       1392</span><br><span class="line">-/+ buffers/cache:        425       3526</span><br><span class="line">Swap:            0          0          0</span><br></pre></td></tr></table></figure>
+<p>可以看到 Swap 没有开启，下面我们来将其增加到内存大小 (4G)。</p>
+</li>
+<li><h4 id="创建-Swap-文件"><a href="#创建-Swap-文件" class="headerlink" title="创建 Swap 文件"></a>创建 Swap 文件</h4> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mkdir swap</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> swap</span><br><span class="line"></span><br><span class="line">sudo dd <span class="keyword">if</span>=/dev/zero of=swapfile bs=1024 count=4M   <span class="comment"># bs 表示块大小  count 表示块数目  1024 * 4M  = 4G</span></span><br><span class="line"><span class="comment"># 4194304+0 records in</span></span><br><span class="line"><span class="comment"># 4194304+0 records out</span></span><br><span class="line"><span class="comment"># 4294967296 bytes (4.3 GB) copied, 88.3999 s, 48.6 MB/s</span></span><br></pre></td></tr></table></figure>
+<p> 把文件转换成 Swap 文件</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkswap -f  swapfile </span><br><span class="line"><span class="comment"># Setting up swapspace version 1, size = 4194300 KiB</span></span><br><span class="line"><span class="comment"># no label, UUID=bebbcbad-dda2-49f9-9aab-4b24b1d62d87</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="激活-Swap"><a href="#激活-Swap" class="headerlink" title="激活 Swap"></a>激活 Swap</h4> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo swapon swapfile</span><br></pre></td></tr></table></figure>
+<p>  查看激活情况</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">free -m</span><br></pre></td></tr></table></figure>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:          3952       3842        109          9          1       3369</span><br><span class="line">-/+ buffers/cache:        470       3481</span><br><span class="line">Swap:         4095          0       4095</span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><ul>
+<li><p>修改swappiness<br>swappiness 为 0 - 100的数值，数值越大表示越积极的去使用 Swap。</p>
+<ul>
+<li><p>暂时修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sysctl vm.swappiness=40</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>永久修改</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/sysctl.conf</span><br><span class="line"><span class="comment"># 增加一行</span></span><br><span class="line">vm.swappiness = 40</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>修改权限<br>   设置成只有 root 用户具有读写权限</p>
+   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo chown root:root /swap/swapfile</span><br><span class="line">sudo chmod 0600 /swap/swapfile</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><h4 id="开机启动"><a href="#开机启动" class="headerlink" title="开机启动"></a>开机启动</h4> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/fstab</span><br></pre></td></tr></table></figure>
+<p> 在文件最后面添加</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/swap/swapfile       none    swap    sw      0       0</span><br></pre></td></tr></table></figure></li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Ubuntu </tag>
+            
+            <tag> Server </tag>
+            
+            <tag> Swap </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[PHP 注意事项]]></title>
+      <url>http://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html</url>
+      <content type="html"><![CDATA[<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ol>
+<li><h4 id="尽量静态化"><a href="#尽量静态化" class="headerlink" title="尽量静态化"></a>尽量静态化</h4><p> 如果函数可以静态化，就尽量静态化。<br>区别主要体现是内存的处理上，静态方法在程序开始的时候分配内存，而实例方法在实例化的时候才会分配内存。<br>静态方法可以直接调用，而实例方法要先生成实例，在通过实例调用。</p>
+<blockquote>
+<p>静态方法过多，会占用内存</p>
+</blockquote>
+</li>
+<li><h4 id="echo-VS-print"><a href="#echo-VS-print" class="headerlink" title="echo VS print"></a>echo VS print</h4><p>echo的性能高于print，因为echo没有返回值，而print返回一个整型</p>
+<blockquote>
+<p>echo 大字符串的时候需要在服务器进行对应的配置 </p>
+</blockquote>
+</li>
+<li><h4 id="echo-多个字符串"><a href="#echo-多个字符串" class="headerlink" title="echo 多个字符串"></a>echo 多个字符串</h4><p>echo 多个字符串是采用<code>,</code>代替<code>.</code>来连接字符串</p>
+</li>
+<li><h4 id="错误屏蔽"><a href="#错误屏蔽" class="headerlink" title="@ 错误屏蔽"></a>@ 错误屏蔽</h4><p>用 @ 掩盖错误会降低脚本运行速度，特别是不要在循环中使用@。</p>
+</li>
+<li><h4 id="row-‘id’-amp-row-id-amp-row-1"><a href="#row-‘id’-amp-row-id-amp-row-1" class="headerlink" title="$row[‘id’] &amp; $row[id] &amp; $row[1]"></a>$row[‘id’] &amp; $row[id] &amp; $row[1]</h4><p> <code>&#39;id&#39;</code>会直接查找key为<code>&#39;id&#39;</code>d的值，而没有引号如变量、常量在解析的时候会先判断类型在取值。</p>
+</li>
+<li><h4 id="isset-amp-empty"><a href="#isset-amp-empty" class="headerlink" title="isset() &amp; empty()"></a>isset() &amp; empty()</h4><p>isset()是测试变量是否被赋值。<br>empty()是测试变量是否为空，该变量已经赋值。如果变量没被赋值就引用是被允许的,但会有notice提示。</p>
+<blockquote>
+<p>如果变量被赋予空值 <code>$t = &quot;&quot;; $t = 0; $t = false;</code>，<code>empty($t)</code>返回真，<code>isset($t)</code>也返回真。<br>如果要注销一个变量采用 <code>unset($t)</code> <code>$t = NULL</code></p>
+</blockquote>
+</li>
+<li><h4 id="循环前确认最大次数"><a href="#循环前确认最大次数" class="headerlink" title="循环前确认最大次数"></a>循环前确认最大次数</h4><p> 在执行for循环前确认最大字数，不要每次循环的时候都重新计算最大值。</p>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//不要这样做</span></span><br><span class="line"><span class="keyword">for</span> ($i=<span class="number">0</span>;$i&lt;=count($array);$i++)&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//应该这样做</span></span><br><span class="line">$len = count($array);</span><br><span class="line"><span class="keyword">for</span> ($i=<span class="number">0</span>;$i&lt;=$len;$i++)&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h4 id="include-amp-include-once-amp-require-amp-require-once"><a href="#include-amp-include-once-amp-require-amp-require-once" class="headerlink" title="include() &amp; include_once() &amp; require() &amp; require_once()"></a>include() &amp; include_once() &amp; require() &amp; require_once()</h4><p>功能是一致的都是加载文件，<code>_once</code>是在加载文件前判断该文件是否已经被加载过了，避免重复加载。<br>主要区别</p>
+<ul>
+<li>错误处理机制<ul>
+<li><code>require()</code> 如果不存在文件时，会抛出<code>fatal error</code>脚本终止运行。</li>
+<li><code>include()</code> 如果不存在文件时，会抛出<code>warning</code>但脚本继续运行。</li>
+</ul>
+</li>
+<li>性能<ul>
+<li><code>require()</code> 文件只处理一次 (实际上，文件内容替换了require()语句)。</li>
+<li><code>include()</code> 执行时文件每次都要进行读取和评估。<br>如果有包含这些指令之一的代码和可能执行多次的代码，则使用<code>require()</code>效率比较高。</li>
+</ul>
+</li>
+<li><p>使用弹性</p>
+<ul>
+<li><code>require()</code> 通常放在脚本的最前面，脚本在执行前，会先载入所指定引入的文件，使它变成脚本的一部份。</li>
+<li><code>include()</code> 通常放在流程控制的处理区段中。脚本在读到文件时，才将它载进来。这种方式，可以把执行时的流程简单化。</li>
+</ul>
+<blockquote>
+<p>包含文件时使用完整路径，减少解析路径所需的时间。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><h4 id="‘-‘-amp-“-“"><a href="#‘-‘-amp-“-“" class="headerlink" title="‘ ‘ &amp; “ “"></a>‘ ‘ &amp; “ “</h4><p> PHP 允许使用单引号和双引号来封装字符串变量。<br> <code>&quot; &quot;</code> 先读取字符串内容，再查找其中的变量，并进行赋值。</p>
+</li>
+<li><h4 id="不要随便复制变量"><a href="#不要随便复制变量" class="headerlink" title="不要随便复制变量"></a>不要随便复制变量</h4><p> 把变量复制到另一个变量会增加一倍的内存消耗。</p>
+</li>
+<li><h4 id="if-else-amp-switch-case"><a href="#if-else-amp-switch-case" class="headerlink" title="if else &amp; switch case"></a>if else &amp; switch case</h4><p> switch case好于使用多个if，else if语句，并且代码更加容易阅读和维护。</p>
+</li>
+<li><h4 id="并不是事必面向对象"><a href="#并不是事必面向对象" class="headerlink" title="并不是事必面向对象"></a>并不是事必面向对象</h4><p> 面向对象往往开销很大，每个方法和对象的调用都会消耗内存。</p>
+</li>
+<li><h4 id="不要把方法细分得过多"><a href="#不要把方法细分得过多" class="headerlink" title="不要把方法细分得过多"></a>不要把方法细分得过多</h4><p> 每个方法的调用都会消耗内存。</p>
+</li>
+<li><h4 id="尽量采用的PHP内置函数"><a href="#尽量采用的PHP内置函数" class="headerlink" title="尽量采用的PHP内置函数"></a>尽量采用的PHP内置函数</h4></li>
+<li><h4 id="循环内部不要声明变量，尤其是大变量：对象"><a href="#循环内部不要声明变量，尤其是大变量：对象" class="headerlink" title="循环内部不要声明变量，尤其是大变量：对象"></a>循环内部不要声明变量，尤其是大变量：对象</h4></li>
+<li><h4 id="销毁变量释放内存，特别是大的数组"><a href="#销毁变量释放内存，特别是大的数组" class="headerlink" title="销毁变量释放内存，特别是大的数组"></a>销毁变量释放内存，特别是大的数组</h4></li>
+<li><h4 id="字符串函数代替正则表达式。"><a href="#字符串函数代替正则表达式。" class="headerlink" title="字符串函数代替正则表达式。"></a>字符串函数代替正则表达式。</h4></li>
+<li><h4 id="split比exploade快"><a href="#split比exploade快" class="headerlink" title="split比exploade快"></a>split比exploade快</h4></li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> PHP </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> PHP </tag>
+            
+            <tag> Tips </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[GEM 笔记]]></title>
+      <url>http://www.robbs.win/2016-10-12/gem-note.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文记录了在使用过程中经常出现的一些命令</p>
+<h2 id="记录"><a href="#记录" class="headerlink" title="记录"></a>记录</h2><h3 id="更换镜像"><a href="#更换镜像" class="headerlink" title="更换镜像"></a>更换镜像</h3><p>由于国内网络问题，在使用很多东西前我们第一件事情就是换镜像。<a href="https://ruby.taobao.org/" title="淘宝镜像" target="_blank" rel="noopener">淘宝镜像</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gem sources --remove https://rubygems.org/</span><br><span class="line">gem sources -a https://ruby.taobao.org/</span><br><span class="line"></span><br><span class="line">gem sources -l</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">*** CURRENT SOURCES ***</span><br><span class="line"></span><br><span class="line">https://ruby.taobao.org</span><br><span class="line"><span class="comment"># 请确保只有 ruby.taobao.org</span></span><br></pre></td></tr></table></figure>
+<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">gem -v                                 <span class="comment"># 查看RubyGems软件的版本</span></span><br><span class="line"></span><br><span class="line">gem <span class="built_in">help</span>                               <span class="comment"># 显示RubyGem使用帮助</span></span><br><span class="line">gem <span class="built_in">help</span> example                       <span class="comment"># 列出RubyGem命令一些使用范例</span></span><br><span class="line"></span><br><span class="line">gem install [gemname]                  <span class="comment"># 安装指定gem包，程序先从本机查找gem包并安装，如果本地没有，则从远程gem安装。</span></span><br><span class="line">gem install -l [gemname]               <span class="comment"># 仅从本机安装gem包</span></span><br><span class="line">gem install -r [gemname]               <span class="comment"># 仅从远程安装gem包</span></span><br><span class="line">gem install [gemname] --version=[ver]  <span class="comment"># 安装指定版本的gem包</span></span><br><span class="line"></span><br><span class="line">gem uninstall [gemname]                <span class="comment"># 删除指定的gem包，注意此命令将删除所有已安装的版本</span></span><br><span class="line">gem uninstall [gemname] --version=[ver] <span class="comment"># 删除某指定版本gem</span></span><br><span class="line"></span><br><span class="line">gem update --system                     <span class="comment"># 更新升级RubyGems软件自身</span></span><br><span class="line">gem update [gemname]                    <span class="comment"># 更新所有|指定已安装的gem包</span></span><br><span class="line"></span><br><span class="line">gem list                                <span class="comment"># 查看本机已安装的所有gem包 # 显示RubyGem使用帮助</span></span><br><span class="line"></span><br><span class="line">gem list | cut -d<span class="string">" "</span> -f1 | xargs gem uninstall –aIx  <span class="comment"># 删除系统中的所有gems</span></span><br><span class="line"><span class="comment"># -I Ignore dependency requirements while uninstalling</span></span><br><span class="line"><span class="comment"># -a Uninstall all matching versions</span></span><br><span class="line"><span class="comment"># -x Uninstall applicable executables without confirmation</span></span><br><span class="line"></span><br><span class="line">gem cleanup                             <span class="comment"># 清除所有包旧版本，保留最新版本  -d 查看那些会被删除   -v</span></span><br><span class="line"></span><br><span class="line">gem environment                         <span class="comment"># 查看gem的环境</span></span><br></pre></td></tr></table></figure>]]></content>
+      
+        <categories>
+            
+            <category> Software </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Software </tag>
+            
+            <tag> Ruby </tag>
+            
+            <tag> GEM </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[采用Let's Encrypt 证书在Nginx上实现 HTTPS]]></title>
+      <url>http://www.robbs.win/2016-10-11/Https-Nginx.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="什么是HTTPS"><a href="#什么是HTTPS" class="headerlink" title="什么是HTTPS"></a>什么是HTTPS</h3><p>  HTTPS（全称：Hyper Text Transfer Protocol over Secure Socket Layer），是以安全为目标的HTTP通道，简单讲是HTTP的安全版。即HTTP下加入SSL层，HTTPS的安全基础是SSL，因此加密的详细内容就需要SSL。</p>
+<h3 id="为什么使用HTTPS"><a href="#为什么使用HTTPS" class="headerlink" title="为什么使用HTTPS"></a>为什么使用HTTPS</h3><p>  我们大致也明白了HTTPS其实就是一个经过加密后的HTTP，具有更高的安全性。</p>
+<h3 id="证书选择"><a href="#证书选择" class="headerlink" title="证书选择"></a>证书选择</h3><p>目前市面上比较成熟的HTTPS 证书提供商：</p>
+<ul>
+<li>做证书起家的<a href="http://www.verisign.com/" title="VeriSign" target="_blank" rel="noopener">VeriSign</a></li>
+<li>老牌的 <a href="https://www.startssl.com/" title="StartSSL" target="_blank" rel="noopener">StartSSL</a></li>
+<li>新星 <a href="https://letsencrypt.org/" title="Let’s Encrypt" target="_blank" rel="noopener">Let’s Encrypt</a></li>
+<li>国内的 <a href="https://www.wosign.com/" title="沃通" target="_blank" rel="noopener">沃通</a></li>
+<li>……</li>
+</ul>
+<p>本文将使用Let’s Encrypt证书，因为它免费、快速、可自动化续签……</p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><h3 id="需要工具"><a href="#需要工具" class="headerlink" title="需要工具"></a>需要工具</h3><ul>
+<li>Ubuntu16.04的服务器 </li>
+<li>域名</li>
+</ul>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>  根据Let’s Encrypt上官方推荐我们将采用自动化工具<a href="https://certbot.eff.org/" title="Certbot" target="_blank" rel="noopener">Certbot</a>，并安装推荐教程直接操作。</p>
+<ol>
+<li><p>安装Certbot   </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install letsencrypt</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>申请证书</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">letsencrypt certonly --agree-tos --email xx@xx.com --webroot -w /var/www/example -d example.com -d www.example.com -w /var/www/thing -d thing.is -d m.thing.is</span><br><span class="line"><span class="comment"># --email 后面替换成自己的Email用来接受通知</span></span><br><span class="line"><span class="comment"># -d 填写需要Https访问的域名，可多个</span></span><br></pre></td></tr></table></figure>
+<p>命令运行完以后会在<code>/etc/letsencrypt/live/example.com/</code>目录下生成一下文件</p>
+<ul>
+<li>cert.pem  服务器证书文件</li>
+<li>chain.pem</li>
+<li>fullchain.pem =  cert.pem + chain.pem  <code>Nginx配置文件中的 ssl_certificate</code></li>
+<li>privkey.pem <code>Nginx 配置文件中的 ssl_certificate_key</code></li>
+</ul>
+</li>
+<li><p>配置Nginx</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/nginx/sites-available/default</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    <span class="comment"># listen [::]:80;</span></span><br><span class="line">    server_name example.com;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.</span></span><br><span class="line">    <span class="built_in">return</span> 301 https://<span class="variable">$host</span><span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    <span class="comment"># SSL configuration</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    listen 443 ssl default_server;</span><br><span class="line">    listen [::]:443 ssl default_server;</span><br><span class="line">    server_name example.com;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        root   /var/www/html;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">#error_page  404              /404.html;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># redirect server error pages to the static page /50x.html</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    error_page   500 502 503 504  /50x.html;</span><br><span class="line">    location = /50x.html &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># certs sent to the client in SERVER HELLO are concatenated in ssl_certificate</span></span><br><span class="line">    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;</span><br><span class="line">    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;</span><br><span class="line">    ssl_session_timeout 1d;</span><br><span class="line">    ssl_session_cache shared:SSL:50m;</span><br><span class="line">    ssl_session_tickets off;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits</span></span><br><span class="line">    <span class="comment"># ssl_dhparam /etc/ssl/certs/dhparam.pem;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># intermediate configuration. tweak to your needs.</span></span><br><span class="line">    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;</span><br><span class="line">    ssl_ciphers <span class="string">'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'</span>;</span><br><span class="line">    ssl_prefer_server_ciphers on;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)</span></span><br><span class="line">    add_header Strict-Transport-Security max-age=15768000;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># OCSP Stapling ---</span></span><br><span class="line">    <span class="comment"># fetch OCSP records from URL in ssl_certificate and cache them</span></span><br><span class="line">    ssl_stapling on;</span><br><span class="line">    ssl_stapling_verify on;</span><br><span class="line"></span><br><span class="line">    <span class="comment">## verify chain of trust of OCSP response using Root CA and Intermediate certs</span></span><br><span class="line">    <span class="comment"># ssl_trusted_certificate /etc/letsencrypt/live/walfud.com/root_ca_cert_plus_intermediates;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># resolver 8.8.8.8 8.8.4.4 valid=300s;</span></span><br><span class="line">    <span class="comment"># resolver_timeout 5s;</span></span><br><span class="line">    <span class="comment"># pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    location ~ \.php$ &#123;</span><br><span class="line">        include snippets/fastcgi-php.conf;</span><br><span class="line">        <span class="comment"># With php7.0-cgi alone:  </span></span><br><span class="line">        fastcgi_pass 127.0.0.1:9000;</span><br><span class="line">        <span class="comment"># With php7.0-fpm:</span></span><br><span class="line">        <span class="comment"># fastcgi_pass unix:/var/run/php7.0-fpm.sock;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启Nginx</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service nginx reload</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自动续签<br> Let’s Encrypt 证书的有效期是 90 天，为了保证证书的有效性，我们需要及时的去续签(renew) 证书。这里我们采用<code>cron</code>来进行定期的续签。<code>letsencrypt renew</code>只会在证书过期的时候才会刷新证书，如果证书没有过期将不会执行任何命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每天夜里凌晨 0 点续签:</span></span><br><span class="line">* 0 * * * letsencrypt renew</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启 nginx 以使证书生效</span></span><br><span class="line">* 1 * * * service nginx reload</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Ubuntu </tag>
+            
+            <tag> HTTPS </tag>
+            
+            <tag> Nginx </tag>
+            
+            <tag> Server </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[PHP-FPM 进程管理模式简介]]></title>
+      <url>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在服务器运行时，会出现服务器出现PHP-FPM内存占用过大、PHP-FPM进程数目太多等相关问题导致网站或者服务器访问无法问题，那PHP-FPM的进程管理模式到底是什么样子的，下面我们来大概了解下。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>通过查看一下配置文件，我们可以发现PHP-FPM具有三种管理模式<code>{ static | dynamic | ondemand}</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/php/7.0/fpm/pool.d/www.conf</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">; Choose how the process manager will control the number of child processes.</span><br><span class="line">; Possible Values:</span><br><span class="line">;   static  - a fixed number (pm.max_children) of child processes;</span><br><span class="line">;   dynamic - the number of child processes are <span class="built_in">set</span> dynamically based on the</span><br><span class="line">;             following directives. With this process management, there will be</span><br><span class="line">;             always at least 1 children.</span><br><span class="line">;             pm.max_children      - the maximum number of children that can</span><br><span class="line">;                                    be alive at the same time.</span><br><span class="line">;             pm.start_servers     - the number of children created on startup.</span><br><span class="line">;             pm.min_spare_servers - the minimum number of children <span class="keyword">in</span> <span class="string">'idle'</span></span><br><span class="line">;                                    state (waiting to process). If the number</span><br><span class="line">;                                    of <span class="string">'idle'</span> processes is less than this</span><br><span class="line">;                                    number <span class="keyword">then</span> some children will be created.</span><br><span class="line">;             pm.max_spare_servers - the maximum number of children <span class="keyword">in</span> <span class="string">'idle'</span></span><br><span class="line">;                                    state (waiting to process). If the number</span><br><span class="line">;                                    of <span class="string">'idle'</span> processes is greater than this</span><br><span class="line">;                                    number <span class="keyword">then</span> some children will be killed.</span><br><span class="line">;  ondemand - no children are created at startup. Children will be forked when</span><br><span class="line">;             new requests will connect. The following parameter are used:</span><br><span class="line">;             pm.max_children           - the maximum number of children that</span><br><span class="line">;                                         can be alive at the same time.</span><br><span class="line">;             pm.process_idle_timeout   - The number of seconds after <span class="built_in">which</span></span><br><span class="line">;                                         an idle process will be killed.</span><br><span class="line">; Note: This value is mandatory.</span><br></pre></td></tr></table></figure>
+<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h3 id="Static"><a href="#Static" class="headerlink" title="Static"></a>Static</h3><p><code>pm = static</code><br>启动时创建并始终保持一个固定数量的子进程。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm.max_children        <span class="comment"># 限定php-fpm的最大进程数</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="Dynamic"><a href="#Dynamic" class="headerlink" title="Dynamic"></a>Dynamic</h3><p><code>pm = dynamic  (默认)</code><br>启动时会创建固定数目<code>start_servers</code>的子进程，使用过程中会新建子进程但数目不会超过最大子进程数<code>max_children</code>，子进程数目会在<code>start_servers</code>和<code>max_children</code>之间波动。而闲置的子进程数由<code>min_spare_servers</code> 和 <code>max_spare_servers</code> 进行控制。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pm.max_children        <span class="comment"># 限定php-fpm的最大进程数</span></span><br><span class="line">pm.start_servers       <span class="comment"># 起始php-fpm进程数量。</span></span><br><span class="line">pm.min_spare_servers   <span class="comment"># 空闲状态下的最小php-fpm进程数量。</span></span><br><span class="line">pm.max_spare_servers   <span class="comment"># 空闲状态下的最大php-fpm进程数量。（max_spare_servers &lt;= max_children）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#官方建议值</span></span><br><span class="line">start_servers = min_spare_servers + (max_spare_servers - min_spare_servers) / 2</span><br></pre></td></tr></table></figure></p>
+<h3 id="Ondemand"><a href="#Ondemand" class="headerlink" title="Ondemand"></a>Ondemand</h3><p><code>pm = ondemand</code><br>启动时不会创建子进程，当有请求时创建进程，数目不超过<code>max_children</code>。当进程空闲时间超过<code>process_idle_timeout</code>将被释放<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pm.max_children           <span class="comment"># 限定php-fpm的最大进程数</span></span><br><span class="line">pm.process_idle_timeout   <span class="comment"># 进程闲置多少秒后被释放</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h2><ul>
+<li>配置过程中我们可以采用 <code>内存/30M (单个进程最大内存数)</code>的数目来设置<code>max_children</code></li>
+<li><code>static</code> 适用于大内存服务器，因为子进程在创建和释放时都会消耗服务器资源 (时间、内存、CPU…)</li>
+<li><code>dynamic</code> 适用于小内存服务器，方式灵活，节省内存。</li>
+<li><code>ondemand</code> 不建议使用在大访问量应用，大量创建和释放进程开销很大</li>
+<li>生成环境建议采用 <code>static</code> 模式</li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> PHP </tag>
+            
+            <tag> Server </tag>
+            
+            <tag> Process Manager </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Ubuntu16.04 安装Nginx、PHP7、MySQL5.7]]></title>
+      <url>http://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</url>
+      <content type="html"><![CDATA[<h2 id="前置工作"><a href="#前置工作" class="headerlink" title="前置工作"></a>前置工作</h2><p>安装前先添加相应的 <a href="/2016-09-30/Software-PPA-Sources.html" title="常用的软件 PPA 源">PPA</a> 源。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aptitude install nginx -y</span><br></pre></td></tr></table></figure>
+<h3 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aptitude install mysql-server-5.7 -y</span><br></pre></td></tr></table></figure>
+<h3 id="PHP7-0"><a href="#PHP7-0" class="headerlink" title="PHP7.0"></a>PHP7.0</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aptitude install php7.0 php7.0-mysql php7.0-mcrypt php7.0-mbstring php7.0-fpm php7.0-cli php7.0-xml php7.0-zip -y</span><br><span class="line">aptitude install composer</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h3 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### vim /etc/php/7.0/fpm/pool.d/www.conf</span></span><br><span class="line"><span class="comment">### 修改 Unix socket To TCP socket</span></span><br><span class="line">listen = 127.0.0.1:9000</span><br></pre></td></tr></table></figure>
+<h3 id="Nginx-1"><a href="#Nginx-1" class="headerlink" title="Nginx"></a>Nginx</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### vim /etc/nginx/sites-available/default</span></span><br><span class="line"></span><br><span class="line">root /var/www/html;</span><br><span class="line"><span class="comment"># Add index.php to the list if you are using PHP</span></span><br><span class="line">index index.php index.html index.htm;</span><br><span class="line">server_name _;</span><br><span class="line">location ~ \.php$ &#123;</span><br><span class="line">        include snippets/fastcgi-php.conf;</span><br><span class="line">        <span class="comment"># With php7.0-cgi alone:</span></span><br><span class="line">        fastcgi_pass 127.0.0.1:9000;</span><br><span class="line">        <span class="comment"># With php7.0-fpm:</span></span><br><span class="line">        <span class="comment"># fastcgi_pass unix:/var/run/php7.0-fpm.sock;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">service php7.0-fpm &#123;start|stop|status|restart|reload|force-reload&#125;</span><br><span class="line">service mysql &#123;start|stop|restart|reload|force-reload|status&#125;</span><br><span class="line">service nginx &#123;start|stop|restart|reload|force-reload|status|configtest&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+        <categories>
+            
+            <category> Server </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Ubuntu </tag>
+            
+            <tag> Nginx </tag>
+            
+            <tag> Server </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[常用的软件 PPA 源]]></title>
+      <url>http://www.robbs.win/2016-09-30/Software-PPA-Sources.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>整理了一些自己比较常用的PPA源做备份使用，后期将持续更新。</p>
+<h2 id="详情"><a href="#详情" class="headerlink" title="详情"></a>详情</h2><h3 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">add-apt-repository ppa:nginx/stable</span><br><span class="line"><span class="comment">## /etc/apt/sources.list</span></span><br><span class="line">deb http://ppa.launchpad.net/nginx/stable/ubuntu xenial main </span><br><span class="line"></span><br><span class="line">apt-add-repository ppa:nginx/development</span><br><span class="line"><span class="comment">## /etc/apt/sources.list</span></span><br><span class="line">deb http://ppa.launchpad.net/nginx/development/ubuntu xenial main</span><br></pre></td></tr></table></figure>
+<h3 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add-apt-repository ppa:ondrej/mysql-5.7</span><br><span class="line"><span class="comment">## /etc/apt/sources.list</span></span><br><span class="line">deb http://ppa.launchpad.net/ondrej/mysql-5.7/ubuntu xenial main</span><br></pre></td></tr></table></figure>
+<h3 id="PHP70"><a href="#PHP70" class="headerlink" title="PHP70"></a>PHP70</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add-apt-repository ppa:ondrej/php</span><br><span class="line"><span class="comment">## /etc/apt/sources.list</span></span><br><span class="line">deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main</span><br></pre></td></tr></table></figure>
+<h3 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">add-apt-repository ppa:git-core/ppa</span><br><span class="line"><span class="comment">## /etc/apt/sources.list</span></span><br><span class="line">deb http://ppa.launchpad.net/git-core/ppa/ubuntu xenial main </span><br><span class="line">deb-src http://ppa.launchpad.net/git-core/ppa/ubuntu xenial main</span><br></pre></td></tr></table></figure>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UnicodeDecodeError: <span class="string">'ascii'</span> codec can<span class="string">'t decode byte 0xc5 in position 92: ordinal not in range(128)</span></span><br></pre></td></tr></table></figure>
+<p>解决方案<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LC_ALL=C.UTF-8 add-apt-repository xxx</span><br></pre></td></tr></table></figure></p>
+<hr>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">The program <span class="string">'add-apt-repository'</span> is currently not installed. You can install it by typing:</span><br><span class="line">apt-get install software-properties-common</span><br></pre></td></tr></table></figure>
+<p>解决方案<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install software-properties-common</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      
+        <categories>
+            
+            <category> Software </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Software </tag>
+            
+            <tag> Ubuntu </tag>
+            
+            <tag> PPA </tag>
+            
+            <tag> Sources </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 常用命令]]></title>
+      <url>http://www.robbs.win/2016-09-23/Linux-common-shells.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>整理了一些自己比较常用的命令，后期将持续更新。</p>
+<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h3 id="文件命令"><a href="#文件命令" class="headerlink" title="文件命令"></a>文件命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ ls                 <span class="comment">## 查看目录下的子节点（文件夹和文件）信息  -a:显示隐藏文件  -l:列表显示</span></span><br><span class="line">$ <span class="built_in">pwd</span>                <span class="comment">## 查看当前所在的工作目录的全路径</span></span><br><span class="line">$ <span class="built_in">cd</span> dir             <span class="comment">## 打开目录 - 前一个工作目录 ~ 当前用户目录</span></span><br><span class="line">$ rm                 <span class="comment">## 删除文件  -r  删除目录 -f 强制删除文件</span></span><br><span class="line">$ cp file1 file2     <span class="comment">## 复制  -r  赋值目录，没有就创建</span></span><br><span class="line">$ ln -s file link    <span class="comment">## 创建file的符号连接link</span></span><br><span class="line">$ touch file         <span class="comment">## 创建文件</span></span><br><span class="line">$ mkdir dir          <span class="comment">## 创建目录</span></span><br><span class="line">$ more file          <span class="comment">## 查看file内容</span></span><br><span class="line">$ tail -f file       <span class="comment">## 从后10行开始查看file</span></span><br><span class="line">$ chmod octal file   <span class="comment">## 更改file权限  777 755</span></span><br><span class="line">$ chown              <span class="comment">## 更改文件所有者</span></span><br><span class="line">$ Ctrl + W           <span class="comment">## 删除当前行中的字</span></span><br><span class="line">$ Ctrl + U           <span class="comment">## 删除整行</span></span><br></pre></td></tr></table></figure>
+<h3 id="进程管理"><a href="#进程管理" class="headerlink" title="进程管理"></a>进程管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ ps            <span class="comment">## 现实当前的活动进程</span></span><br><span class="line">$ top           <span class="comment">## 显示所有正在运行的进程</span></span><br><span class="line">$ <span class="built_in">kill</span> pid      <span class="comment">## 杀掉进程 pid</span></span><br><span class="line">$ killall proc  <span class="comment">## 杀掉所有名位为 proc 的进程</span></span><br><span class="line">$ Ctrl + C      <span class="comment">## 停止当前命令</span></span><br><span class="line">$ Ctrl + \      <span class="comment">## 停止当前命令，当 Ctrl + C 不好用的时候</span></span><br><span class="line">$ Ctrl + Z      <span class="comment">## 停止当前命令，并使用 fg 恢复</span></span><br><span class="line">$ Ctrl + D      <span class="comment">## 注销当前会话，与 exit 相似</span></span><br><span class="line">$ !!            <span class="comment">## 重复上次的命令</span></span><br><span class="line">$ <span class="built_in">fg</span>            <span class="comment">## 将进程转到前台</span></span><br><span class="line">$ <span class="built_in">bg</span> pid        <span class="comment">## 将进程转到前台</span></span><br></pre></td></tr></table></figure>
+<h3 id="SSH"><a href="#SSH" class="headerlink" title="SSH"></a>SSH</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ssh user@host         <span class="comment">## 以user去登录host   -p 端口 -i key文件 -vvv Debug模式mkdir</span></span><br><span class="line">$ ssh-copy-id user@host <span class="comment">## 将密钥添加到host实现无密码登录</span></span><br></pre></td></tr></table></figure>
+<h3 id="系统信息"><a href="#系统信息" class="headerlink" title="系统信息"></a>系统信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ date                   <span class="comment">## 显示当前日期和时间</span></span><br><span class="line">$ ntpdate ntp.ubuntu.com <span class="comment">## 与Ubuntu NTP server同步时间</span></span><br><span class="line">$ cal                    <span class="comment">## 显示当月日历</span></span><br><span class="line">$ uptime                 <span class="comment">## 显示系统从开机到现在所运行的时间</span></span><br><span class="line">$ getent passwd          <span class="comment">## 所有用户列表</span></span><br><span class="line">$ w                      <span class="comment">## 显示登录的用户</span></span><br><span class="line">$ whoami                 <span class="comment">## 查看当前用户名</span></span><br><span class="line">$ finger user            <span class="comment">## 显示user相关信息</span></span><br><span class="line">$ uname -a               <span class="comment">## 显示内核信息</span></span><br><span class="line">$ cat /proc/cpuinfo      <span class="comment">## 显示cpu信息</span></span><br><span class="line">$ cat /proc/meminfo      <span class="comment">## 显示内存信息</span></span><br><span class="line">$ man <span class="built_in">command</span>            <span class="comment">## 显示command 的说明手册</span></span><br><span class="line">$ df                     <span class="comment">## 显示磁盘占用</span></span><br><span class="line">$ du                     <span class="comment">## 显示目录空间占用</span></span><br><span class="line">$ free                   <span class="comment">## 显示内存及交换区占用情况</span></span><br></pre></td></tr></table></figure>
+<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ ping host                      <span class="comment">## ping host 并输出结果</span></span><br><span class="line">$ nmap host                      <span class="comment">## 扫描网络寻找开放的端口</span></span><br><span class="line">$ whois domain                   <span class="comment">## 获取 domain 的 whois 信息</span></span><br><span class="line">$ dig domain                     <span class="comment">## 获取 domain 的 DNS 信息</span></span><br><span class="line">$ dig -x domain                  <span class="comment">## 逆向查询 host</span></span><br><span class="line">$ wget file                      <span class="comment">## 下载file</span></span><br><span class="line">$ wget -c file                   <span class="comment">## 断点续传</span></span><br><span class="line">$ curl -I http://www.q.com       <span class="comment">## 获取HTTP头信息</span></span><br></pre></td></tr></table></figure>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ ./configure</span><br><span class="line">$ make</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<h3 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ grep</span><br><span class="line">$ find</span><br></pre></td></tr></table></figure>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+            <tag> Shell </tag>
+            
+        </tags>
+        
+    </entry>
+    
+  
+  
+</search>

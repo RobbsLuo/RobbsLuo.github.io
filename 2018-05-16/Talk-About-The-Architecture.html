@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="系统介绍架构相关知识 | 谈谈架构 | Robbs的个人博客，记录平时在学习实践过程中的一些问题、方法、文档等等。"><meta name="google-site-verification" content="OmbQ9_n-tW8ZNqddXapHuJQjObfs39Bp4bTzrmUJ59g"><title>谈谈架构 | Robbs</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.01"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">谈谈架构</h1><a id="logo" href="/.">Robbs</a><p class="description">己所不欲，勿施于人</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">谈谈架构</h1><div class="post-meta">May 16, 2018<span> | </span><span class="category"><a href="/categories/Architect/">Architect</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><p>最近在公司内部做了一次架构交流/培训，把架构的概念、架构的形式、架构设计原则都做了阐述。<br><a href="http://www.rowkey.me/arch-ppt/index.html" target="_blank" rel="noopener">PPT观看</a></p>
+<h2 id="什么是架构"><a href="#什么是架构" class="headerlink" title="什么是架构"></a>什么是架构</h2><ul>
+<li>部门的人力分配、项目规划</li>
+<li>建筑设计中楼层规划、功能性设施规划</li>
+<li>城市的道路布局、功能性建筑设计、娱乐设施设计</li>
+<li>国家的城市规划、高速公路规划、高铁线路规划<blockquote>
+<p><strong>All is 架构！！！</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="架构的本质"><a href="#架构的本质" class="headerlink" title="架构的本质"></a>架构的本质</h2><ul>
+<li><strong>核心生命周期</strong>：拆分之后主体不变的子生命周期</li>
+<li><strong>非核心生命周期</strong>：拆分之后主体改变的子生命周期<br><img src="/2018-05-16/Talk-About-The-Architecture/1526437772448-7783bdeb-4306-4847-85db-3754065cdea8-image.png" alt=""> <blockquote>
+<p><strong>架构的本质在于不断拆分生命周期（树形结构），使得业务可以做到空间上并行。拆出来的每一个生命周期都有自己的边界，不会影响到其他生命周期，各自的变化都在自己的生命周期内确定，即为高内聚。</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><blockquote>
+<p><strong>软件生命周期： 软件开发生命周期 + 软件运行生命周期（软件访问、软件功能、软件监控)</strong></p>
+</blockquote>
+<p><img src="/2018-05-16/Talk-About-The-Architecture/1526437909260-9eff08f6-b8c8-436d-81ff-2ebc3f639464-image.png" alt=""> </p>
+<h2 id="优秀软件架构三要素"><a href="#优秀软件架构三要素" class="headerlink" title="优秀软件架构三要素"></a>优秀软件架构三要素</h2><ul>
+<li><strong>Firmness（稳定）</strong>: Achieve a satisfactory level of freedom from damaging failure.</li>
+<li><strong>Commodity（实用）</strong>: Utility to accomplish the tasks it is purported to be for.</li>
+<li><strong>Delight（易用）</strong>: Pleasure in use.<blockquote>
+<p><strong>建筑(Solid、Useful、Beautiful)-&gt;软件(Firmness、Commodity、Delight)</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="架构流程概述"><a href="#架构流程概述" class="headerlink" title="架构流程概述"></a>架构流程概述</h2><ol>
+<li><strong>业务架构</strong>：俯视架构，包括业务规则、业务模块和业务流程。主要是对整个系统的业务进行拆分，对领域模型进行设计，把现实中的业务转化成抽象的对象。</li>
+<li><strong>技术架构</strong>：剖面架构，是硬件到应用的抽象，包括抽象层和编程接口。技术架构和业务架构是相辅相成的关系，业务架构的每一个部分都有其技术架构，系统的架构需要先做好这两部分。</li>
+<li><strong>数据架构</strong>：存储架构，主要指的是数据结构的设计。决定了应用数据源的特性，是业务架构和技术架构的基础。</li>
+<li><strong>部署架构</strong>：拓扑架构，包括系统部署了几个结点、结点之间的关系、服务器的高可用、容错性、网络接口与协议等。决定了应用如何运行、运行的性能、可维护性、可扩展性等，是所有架构的基础。</li>
+<li><strong>组织架构</strong>：团队架构，包括项目的组织形式、人员构成、职责等，是上面所有架构的保障设施。良好的组织架构能够保证其他架构的有效实施和推进。<blockquote>
+<p><strong>架构随着业务、负载的变化需要不断的梳理和重构，推进架构的演进。</strong></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="业务架构"><a href="#业务架构" class="headerlink" title="业务架构"></a>业务架构</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438152354-6a181918-13db-4d45-855f-88257de3f429-image.png" alt="俯视视角"> </p>
+<ul>
+<li>业务执行是应用的核心模块，是应用的主要功能。</li>
+<li>数据分析是应用的辅助模块，有助于对应用做数据驱动化研发、商业智能研究、改善用户体验。</li>
+<li>系统管理是应用的基础部分，做好系统的部署、各项指标的监控、关键数据的备份等有助于应用快速迭代部署和稳定运行。</li>
+</ul>
+<h2 id="技术架构-概览"><a href="#技术架构-概览" class="headerlink" title="技术架构 - 概览"></a>技术架构 - 概览</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438216252-267d0e5e-63b3-44dc-b988-c9eb1758a10f-image.png" alt="剖面视角"> </p>
+<ul>
+<li>业务数据源、数据的规则引擎和分析规则支撑起了交互界面的呈现</li>
+<li>基础设施、通用服务构建起了底层的业务逻辑</li>
+</ul>
+<h2 id="技术架构-具体"><a href="#技术架构-具体" class="headerlink" title="技术架构 - 具体"></a>技术架构 - 具体</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438239613-1cdabcae-9196-4aad-869d-94285ae76d41-image.png" alt=""> </p>
+<ul>
+<li>UI和应用都属于应用层，即提供具体的业务实现。其中UI是视图层的主要表现形式。</li>
+<li>应用和服务属于控制逻辑和访问通道，其中服务则是主要的业务逻辑所在，其可以提供服务接口，供应用调用。</li>
+<li>核心、驱动和数据构成了数据层，是对业务中所有相关数据的操作逻辑，是模型层。其中，核心可以对外提供接口，供服务调用。</li>
+</ul>
+<h2 id="架构的演化"><a href="#架构的演化" class="headerlink" title="架构的演化"></a>架构的演化</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438275615-26fee321-9534-4a04-b51e-7806434b66e7-image.png" alt=""> </p>
+<ul>
+<li>单体应用架构，所有逻辑都在应用和核心模块中，包括业务逻辑、数据操作等。</li>
+<li>通过数据驱动统一数据操作接口，屏蔽数据源的差异，可以根据资源进行垂直分区。</li>
+<li>解耦各个模块以服务的形式对外提供api接口，形成分布式服务架构。</li>
+</ul>
+<h2 id="部署架构"><a href="#部署架构" class="headerlink" title="部署架构"></a>部署架构</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438314473-c5da5a10-c62d-49a0-9209-5e43e54b88ca-image-resized.png" alt=""> </p>
+<ul>
+<li>UI交互界面单独部署，包括web、app等形式</li>
+<li>应用单独部署为一个结点或者集群</li>
+<li>服务、核心以及驱动做为整体进行部署</li>
+<li>数据源单独部署</li>
+<li>一个简单的应用/服务集群: LVS(使用keepalived做主备) + Nginx(反向代理) + Tomcat(业务容器)</li>
+</ul>
+<h2 id="数据架构"><a href="#数据架构" class="headerlink" title="数据架构"></a>数据架构</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438343067-0e351afe-72f7-4a7f-a6be-72fab9cd54c8-image.png" alt=""> </p>
+<ul>
+<li>交互界面呈现出来的数据交互逻辑、数据流向决定了业务的主要数据设计</li>
+<li>原始的业务数据、日志和统计需要的数据支撑了数据分析需要的报表输出</li>
+<li>实时信息在一定的规则和状态机引擎下可以提供出实时状态监测等仪表盘功能</li>
+</ul>
+<h2 id="数据的五个属性"><a href="#数据的五个属性" class="headerlink" title="数据的五个属性"></a>数据的五个属性</h2><ul>
+<li><strong>访问频率</strong>：读写频率；只读且经常被访问的数据可以冗余多份</li>
+<li><strong>对一致性的要求</strong>：一致性要求高的数据需要严格保证准确性。</li>
+<li><strong>访问权限</strong>：API设计中根据不同的权限暴露不同粒度的数据。PO-&gt;VO即是对同一事物在不同权限下的描述,</li>
+<li><strong>数据重要性</strong>：不可丢失、允许部分丢失、只是缓存、无需保存</li>
+<li><strong>数据保密性</strong>：内部可以明文、内部不可明文、可以对外公开</li>
+</ul>
+<h2 id="数据设计"><a href="#数据设计" class="headerlink" title="数据设计"></a>数据设计</h2><ul>
+<li>充分理解交互UI，需要知道哪些数据界面关联，哪些数据可以缓存。</li>
+<li>充分理解业务，要搞清楚哪些数据需要记录以及数据之间的关系。</li>
+<li>数据库设计需要注意存储效率：<ul>
+<li>减少事务</li>
+<li>减少联表查询</li>
+<li>适当使用索引</li>
+<li>考虑使用缓存</li>
+<li>…</li>
+</ul>
+</li>
+<li>数据统计场景中，实时性要求较高的数据统计可以用redis；非实时数据则可以使用单独表，通过队列异步运算或者定时计算更新数据。此外，对于一致性要求较高的统计数据，需要依靠事务或者定时校对机制保证准确性。</li>
+</ul>
+<h2 id="什么是架构师"><a href="#什么是架构师" class="headerlink" title="什么是架构师"></a>什么是架构师</h2><ul>
+<li>生命周期识别，合理拆分生命周期</li>
+<li>识别问题和问题的主体, 切忌把解决方案当问题, 发现问题永远比解决问题更加重要!!!</li>
+<li>关注业务技术，保障业务增长</li>
+<li>OKR架构：负责关键技术的突破，解决技术可行性问题，拿出从0到1的那些关键结果</li>
+<li><strong>权责对等，保障架构执行！！！</strong></li>
+</ul>
+<h2 id="架构师必备素质"><a href="#架构师必备素质" class="headerlink" title="架构师必备素质"></a>架构师必备素质</h2><ul>
+<li>站的高、望的远、扎的深</li>
+<li>精通某种技术，能够从本质上类比，触类旁通其他技术。</li>
+<li>平等对待所有技术，只有合适与不合适，没有喜欢与不喜欢。</li>
+<li>视野开阔，了解不同技术的优缺点, 知道可以直接用哪个开源项目来满足这样那样的需求，能够辨别是否需要造轮子。</li>
+<li>精通设计模式，但又不泛用。</li>
+<li>把系统拆分成多个子系统或模块，模块之间尽量松耦合，使得原先只能串行的开发任务，可以并行开展，可以通过投入更多人力来缩短工期。</li>
+<li>能清楚地知道系统的瓶颈在什么地方，不断地定位技术难度、研发进度、性能、内存等各方面的瓶颈，不断调整骨干力量解决瓶颈，在风险爆发之前就消除隐患。</li>
+<li>能够预料到需求可能产生怎样的变化，做好前瞻性设计。</li>
+</ul>
+<h2 id="架构六步思考法"><a href="#架构六步思考法" class="headerlink" title="架构六步思考法"></a>架构六步思考法</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438498119-90bbb34f-ef90-43cb-939b-aa0f696262ce-image.png" alt="架构六步思考法"> </p>
+<h2 id="架构原则-概览"><a href="#架构原则-概览" class="headerlink" title="架构原则 - 概览"></a>架构原则 - 概览</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438513492-00ba90a2-24fb-460d-aa4c-d30bed417433-image.png" alt=""> </p>
+<h2 id="架构原则"><a href="#架构原则" class="headerlink" title="架构原则"></a>架构原则</h2><ul>
+<li><strong>避免过度设计</strong>：最简单的方案最容易实现和维护，也可以避免浪费资源。但方案中需要包括扩展。</li>
+<li><strong>冗余设计</strong>：对服务、数据库的做结点冗余，保证服务的高可用。通过数据库主从模式、应用集群来实现。</li>
+<li><strong>多活数据中心</strong>：为了容灾，从根本上保障应用的高可用性。需要构建多活的数据中心，以防止一个数据中心由于不可控因素出现故障后，引起整个系统的不可用。</li>
+<li><strong>无状态设计</strong>：api、接口等的设计不能有前后依赖关系，一个资源不受其他资源改动的影响。无状态的系统才能更好地进行扩展。如果非得有状态，则要么客户端管理状态，要么服务端用分布式缓存管理状态。</li>
+<li><strong>可回滚</strong>：对于任何业务尤其是关键业务，都具有恢复机制。可以使用基于日志的WAL、基于事件的Event sourcing等来实现可回滚。</li>
+<li><strong>可禁用/自我保护</strong>：具有限流机制，当上游的流量超过自身的负载能力时，能够拒绝溢出的请求。可以通过手动开关或者自动开关（监测异常流量行为），在应用前端挡住流量。</li>
+<li><strong>问题可追踪</strong>：当系统出现问题时，能够定位请求的轨迹、每一步的请求信息等。分布式链路追踪系统即解决的此方面的问题。</li>
+<li><strong>可监控</strong>：可监控是保障系统能够稳定运行的关键。包括对业务逻辑的监控、应用进程的监控以及应用依赖的CPU、硬盘等系统资源的监控。每一个系统都需要做好这几个层面的监控。</li>
+<li><strong>故障隔离</strong>：将系统依赖的资源(线程、CPU)和服务隔离开来能够使得某个服务的故障不会影响其他服务的调用。通过线程池或者分散部署结点可以对故障进行隔离。</li>
+<li><strong>成熟可控的技术选型</strong>：使用市面上主流、成熟、文档、支持资源多的技术，选择合适的而非最火的技术实现系统。</li>
+<li><strong>梯级存储</strong>：内存-&gt;SSD硬盘-&gt;传统硬盘-&gt;磁带，可以根据数据的重要性和生命周期对数据进行分级存储。</li>
+<li><strong>缓存设计</strong>：隔离请求与后端逻辑、存储，是就近原则的一种机制。包括客户端缓存（预先下发资源）、nginx缓存、本地缓存以及分布式缓存。</li>
+<li><strong>异步设计</strong>：对于调用方不关注结果或者允许结果延时返回的接口，采用队列进行异步响应能够很大程度提高系统性能；调用其他服务的时候不去等待服务方返回结果直接返回，同样能够提升系统响应性能。异步队列也是解决分布式事务的常用手段。</li>
+<li><strong>前瞻性设计</strong>：根据行业经验和预判，提前把可扩展性、后向兼容性设计好。</li>
+<li><strong>水平扩展</strong>：相比起垂直扩展，能够通过堆机器解决问题是最优先考虑的问题，系统的负载能力也才能接近无限扩展。此外，基于<code>云计算</code>技术根据系统的负载自动调整容量能够在节省成本的同时保证服务的可用性。</li>
+<li><strong>小步构建和发布</strong>：快速迭代项目，快速试错。不能有跨度时间过长的项目规划。</li>
+<li><strong>自动化</strong>：打包、测试的自动化称为持续集成，部署的自动化称为持续部署。自动化机制是快速迭代和试错的基础保证。</li>
+</ul>
+<h2 id="架构原则-可扩展"><a href="#架构原则-可扩展" class="headerlink" title="架构原则 - 可扩展"></a>架构原则 - 可扩展</h2><p><img src="/2018-05-16/Talk-About-The-Architecture/1526438712437-0ddc81c3-0e3f-437a-8b2f-721e5a730e49-image.png" alt="三轴扩展理论"> </p>
+<ul>
+<li>X轴，水平复制或克隆，面向目标，如数据库读写分离、复制表、replication等，将单体应用或者以来的服务做冗余，通过负载均衡提高系统负载能力。</li>
+<li>Y轴，面向功能/服务，如垂直应用、分布式服务等，就是将单体应用根据功能拆分成小的应用或者服务。</li>
+<li>Z轴，面向资源，如数据库水平分库，对资源做分片，将压力分散到不同的结点上。<blockquote>
+<ul>
+<li><strong>避免依赖于数据库的运算功能(函数、存储器、触发器等)，将负载放在更容易扩展的业务应用端。</strong></li>
+<li><strong>可扩展方案原则： 20倍设计、3倍实施、1.5倍部署（DID）。</strong></li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h2 id="系统响应性能提升五板斧"><a href="#系统响应性能提升五板斧" class="headerlink" title="系统响应性能提升五板斧"></a>系统响应性能提升五板斧</h2><ul>
+<li><strong>异步</strong>：队列缓冲、异步请求。</li>
+<li><strong>并发</strong>：利用多CPU多线程执行业务逻辑。</li>
+<li><strong>就近原则</strong>：缓存、梯度存储。</li>
+<li><strong>减少IO</strong>：合并细粒度接口为粗粒度接口、频繁的覆盖操作可以只做最后一次操作。这里一个需要特别注意的地方: <strong>代码中尽量避免在循环中调用外部服务，更好的做法是使用粗粒度批量接口在循环外面只进行一次请求。</strong></li>
+<li><strong>分区</strong>：频繁访问的数据集规模保持在合理的范围。</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>《架构真经》 by 陈斌</li>
+<li>《聊聊架构》 by 王概凯</li>
+<li>《架构师的第一课》 by 蔡学镛</li>
+<li>架构六步思考法 by 夏华夏@美团</li>
+</ul>
+<hr>
+<blockquote>
+<p>来源: <a href="http://www.rowkey.me/arch-ppt/index.html" target="_blank" rel="noopener">http://www.rowkey.me/arch-ppt/index.html</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.01" async></script><a data-url="http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html" data-id="cji9lsmct004ecnv4qnr8l0r5" class="article-share-link">分享到</a><div class="tags"><a href="/tags/Architect/">Architect</a><a href="/tags/Humanity/">Humanity</a></div><div class="post-nav"><a href="/2018-05-17/Oauth2.html" class="pre">理解OAuth 2.0</a><a href="/2018-05-14/Container-Application-Design.html" class="next">基于容器应用设计的原则，模式和反模式</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Architect/">Architect</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DevOps/">DevOps</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Develop/">Develop</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rails/">Rails</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Server/">Server</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Software/">Software</a><span class="category-list-count">6</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/MicroService/" style="font-size: 15px;">MicroService</a> <a href="/tags/Aliyun/" style="font-size: 15px;">Aliyun</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/Yii2/" style="font-size: 15px;">Yii2</a> <a href="/tags/DynamoDB/" style="font-size: 15px;">DynamoDB</a> <a href="/tags/Software/" style="font-size: 15px;">Software</a> <a href="/tags/Architect/" style="font-size: 15px;">Architect</a> <a href="/tags/Humanity/" style="font-size: 15px;">Humanity</a> <a href="/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/Server/" style="font-size: 15px;">Server</a> <a href="/tags/AirFlow/" style="font-size: 15px;">AirFlow</a> <a href="/tags/Supervisord/" style="font-size: 15px;">Supervisord</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/Shadowsocks/" style="font-size: 15px;">Shadowsocks</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Shell/" style="font-size: 15px;">Shell</a> <a href="/tags/OSX/" style="font-size: 15px;">OSX</a> <a href="/tags/Deployment/" style="font-size: 15px;">Deployment</a> <a href="/tags/IPv6/" style="font-size: 15px;">IPv6</a> <a href="/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/tags/Ruby/" style="font-size: 15px;">Ruby</a> <a href="/tags/Cache/" style="font-size: 15px;">Cache</a> <a href="/tags/Rails/" style="font-size: 15px;">Rails</a> <a href="/tags/Siege/" style="font-size: 15px;">Siege</a> <a href="/tags/PPA/" style="font-size: 15px;">PPA</a> <a href="/tags/Sources/" style="font-size: 15px;">Sources</a> <a href="/tags/Process-Manager/" style="font-size: 15px;">Process Manager</a> <a href="/tags/Swap/" style="font-size: 15px;">Swap</a> <a href="/tags/rbenv/" style="font-size: 15px;">rbenv</a> <a href="/tags/brew/" style="font-size: 15px;">brew</a> <a href="/tags/ruby/" style="font-size: 15px;">ruby</a> <a href="/tags/GEM/" style="font-size: 15px;">GEM</a> <a href="/tags/Mina/" style="font-size: 15px;">Mina</a> <a href="/tags/Deploy/" style="font-size: 15px;">Deploy</a> <a href="/tags/Container/" style="font-size: 15px;">Container</a> <a href="/tags/OAuth/" style="font-size: 15px;">OAuth</a> <a href="/tags/DevOps/" style="font-size: 15px;">DevOps</a> <a href="/tags/VIPS/" style="font-size: 15px;">VIPS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018-06-05/MicroService-Deployment.html">微服务部署：蓝绿部署滚动部署灰度发布金丝雀发布</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html">唯品会运维标准化建设之路</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-17/Oauth2.html">理解OAuth 2.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-16/Talk-About-The-Architecture.html">谈谈架构</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-14/Container-Application-Design.html">基于容器应用设计的原则，模式和反模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018-05-10/How-to-become-an-excellent-architect.html">如何才能成为一个优秀架构师</a></li><li class="post-list-item"><a class="post-list-link" href="/2017-05-01/Aliyun-Open-IPv6.html">阿里云开启 IPv6 支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017-04-25/Install-MongoDB-on-ubuntu16-04.html">Ubuntu16.04 安装 MongoDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017-01-19/Install-And-Deploy-AirFlow.html">安装和部署AirFlow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016-12-26/Use-Brew-Install-Rbenv.html">Mac OS 下安装 rbenv</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">Robbs.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.01" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.01" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.01"><script type="text/javascript" src="/js/search.js?v=0.0.01"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-87287972-1','auto');ga('send','pageview');
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.01"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.01"></script></div></body></html>
