@@ -4,6 +4,28 @@
 
     
   <url>
+    <loc>http://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
+    <lastmod>2018-06-11T01:57:09.246Z</lastmod>
+    <data>
+        <display>
+        <title>JavaScript Currying</title>
+        <pubTime>2018-06-11T00:55:54.000Z</pubTime>
+        
+        <tag>JavaScript</tag>
+         
+        <tag>Currying</tag>
+         
+         
+           
+             
+              <breadCrumb title="JavaScript" url="http://www.robbs.win/categories/JavaScript/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.robbs.win/2018-06-05/MicroService-Deployment.html</loc>
     <lastmod>2018-06-11T01:54:33.365Z</lastmod>
     <data>
@@ -27,25 +49,23 @@
     
     
   <url>
-    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     <data>
         <display>
-        <title>使用 Mina 部署 Yii2 项目</title>
-        <pubTime>2016-10-25T15:03:20.000Z</pubTime>
+        <title>Mac OS 下安装 rbenv</title>
+        <pubTime>2016-12-26T08:41:17.000Z</pubTime>
         
-        <tag>PHP</tag>
+        <tag>rbenv</tag>
          
-        <tag>Yii2</tag>
+        <tag>brew</tag>
          
-        <tag>Mina</tag>
-         
-        <tag>Deploy</tag>
+        <tag>ruby</tag>
          
          
            
              
-              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
           
         </display>
     </data>
@@ -65,30 +85,6 @@
         <tag>Ruby</tag>
          
         <tag>GEM</tag>
-         
-         
-           
-             
-              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
-    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
-    <data>
-        <display>
-        <title>Mac OS 下安装 rbenv</title>
-        <pubTime>2016-12-26T08:41:17.000Z</pubTime>
-        
-        <tag>rbenv</tag>
-         
-        <tag>brew</tag>
-         
-        <tag>ruby</tag>
          
          
            
@@ -125,6 +121,32 @@
 
     
   <url>
+    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>使用 Mina 部署 Yii2 项目</title>
+        <pubTime>2016-10-25T15:03:20.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Yii2</tag>
+         
+        <tag>Mina</tag>
+         
+        <tag>Deploy</tag>
+         
+         
+           
+             
+              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.robbs.win/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html</loc>
     <lastmod>2018-05-28T03:07:55.870Z</lastmod>
     <data>
@@ -140,28 +162,6 @@
            
              
               <breadCrumb title="DevOps" url="http://www.robbs.win/categories/DevOps/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
-    <lastmod>2018-05-28T03:07:55.860Z</lastmod>
-    <data>
-        <display>
-        <title>谈谈架构</title>
-        <pubTime>2018-05-16T03:26:29.000Z</pubTime>
-        
-        <tag>Architect</tag>
-         
-        <tag>Humanity</tag>
-         
-         
-           
-             
-              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
           
         </display>
     </data>
@@ -195,6 +195,28 @@
 
     
   <url>
+    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
+    <lastmod>2018-05-28T03:07:55.860Z</lastmod>
+    <data>
+        <display>
+        <title>谈谈架构</title>
+        <pubTime>2018-05-16T03:26:29.000Z</pubTime>
+        
+        <tag>Architect</tag>
+         
+        <tag>Humanity</tag>
+         
+         
+           
+             
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.robbs.win/2016-10-24/Siege.html</loc>
     <lastmod>2018-05-28T03:07:55.860Z</lastmod>
     <data>
@@ -210,30 +232,6 @@
            
              
               <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
-    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
-    <data>
-        <display>
-        <title>PHP-FPM 进程管理模式简介</title>
-        <pubTime>2016-10-10T08:02:10.000Z</pubTime>
-        
-        <tag>PHP</tag>
-         
-        <tag>Server</tag>
-         
-        <tag>Process Manager</tag>
-         
-         
-           
-             
-              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
           
         </display>
     </data>
@@ -280,6 +278,30 @@
            
              
               <breadCrumb title="PHP" url="http://www.robbs.win/categories/PHP/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
+    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
+    <data>
+        <display>
+        <title>PHP-FPM 进程管理模式简介</title>
+        <pubTime>2016-10-10T08:02:10.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Server</tag>
+         
+        <tag>Process Manager</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
           
         </display>
     </data>
@@ -471,21 +493,21 @@
 
     
   <url>
-    <loc>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</loc>
+    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
     <lastmod>2018-05-28T03:07:55.853Z</lastmod>
     <data>
         <display>
-        <title>Ubuntu 上安装使用 DynamoDB</title>
-        <pubTime>2016-11-16T02:28:46.000Z</pubTime>
+        <title>如何才能成为一个优秀架构师</title>
+        <pubTime>2018-05-10T01:46:38.000Z</pubTime>
         
-        <tag>DynamoDB</tag>
+        <tag>Architect</tag>
          
-        <tag>Software</tag>
+        <tag>Humanity</tag>
          
          
            
              
-              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
           
         </display>
     </data>
@@ -515,21 +537,21 @@
 
     
   <url>
-    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
+    <loc>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</loc>
     <lastmod>2018-05-28T03:07:55.853Z</lastmod>
     <data>
         <display>
-        <title>如何才能成为一个优秀架构师</title>
-        <pubTime>2018-05-10T01:46:38.000Z</pubTime>
+        <title>Ubuntu 上安装使用 DynamoDB</title>
+        <pubTime>2016-11-16T02:28:46.000Z</pubTime>
         
-        <tag>Architect</tag>
+        <tag>DynamoDB</tag>
          
-        <tag>Humanity</tag>
+        <tag>Software</tag>
          
          
            
              
-              <breadCrumb title="Architect" url="http://www.robbs.win/categories/Architect/"/>
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
           
         </display>
     </data>

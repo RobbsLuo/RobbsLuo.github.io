@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
+    
+    <lastmod>2018-06-11T01:57:09.246Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.robbs.win/2018-06-05/MicroService-Deployment.html</loc>
     
     <lastmod>2018-06-11T01:54:33.365Z</lastmod>
@@ -16,7 +23,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
     
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     
@@ -30,14 +37,14 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
+    <loc>http://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
     
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
+    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
     
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     
@@ -51,14 +58,14 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
+    <loc>http://www.robbs.win/2016-09-30/Software-PPA-Sources.html</loc>
     
     <lastmod>2018-05-28T03:07:55.860Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-09-30/Software-PPA-Sources.html</loc>
+    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
     
     <lastmod>2018-05-28T03:07:55.860Z</lastmod>
     
@@ -72,13 +79,6 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
-    
-    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.robbs.win/2016-11-18/Raiils-Cache-Simple.html</loc>
     
     <lastmod>2018-05-28T03:07:55.859Z</lastmod>
@@ -87,6 +87,13 @@
   
   <url>
     <loc>http://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html</loc>
+    
+    <lastmod>2018-05-28T03:07:55.859Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
     
     <lastmod>2018-05-28T03:07:55.859Z</lastmod>
     
@@ -149,7 +156,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</loc>
+    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
     
     <lastmod>2018-05-28T03:07:55.853Z</lastmod>
     
@@ -163,7 +170,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
+    <loc>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</loc>
     
     <lastmod>2018-05-28T03:07:55.853Z</lastmod>
     
