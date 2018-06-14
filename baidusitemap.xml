@@ -4,6 +4,28 @@
 
     
   <url>
+    <loc>http://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</loc>
+    <lastmod>2018-06-14T09:16:18.429Z</lastmod>
+    <data>
+        <display>
+        <title>JavaScript实现依次执行异步任务</title>
+        <pubTime>2018-06-14T09:10:10.000Z</pubTime>
+        
+        <tag>JavaScript</tag>
+         
+        <tag>Async</tag>
+         
+         
+           
+             
+              <breadCrumb title="JavaScript" url="http://www.robbs.win/categories/JavaScript/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
     <lastmod>2018-06-11T01:57:09.246Z</lastmod>
     <data>
@@ -49,30 +71,6 @@
     
     
   <url>
-    <loc>http://www.robbs.win/2016-10-12/gem-note.html</loc>
-    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
-    <data>
-        <display>
-        <title>GEM 笔记</title>
-        <pubTime>2016-10-12T07:44:28.000Z</pubTime>
-        
-        <tag>Software</tag>
-         
-        <tag>Ruby</tag>
-         
-        <tag>GEM</tag>
-         
-         
-           
-             
-              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     <data>
@@ -99,30 +97,6 @@
 
     
   <url>
-    <loc>http://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
-    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
-    <data>
-        <display>
-        <title>Ubuntu 下增加 Swap</title>
-        <pubTime>2016-10-21T02:29:11.000Z</pubTime>
-        
-        <tag>Ubuntu</tag>
-         
-        <tag>Server</tag>
-         
-        <tag>Swap</tag>
-         
-         
-           
-             
-              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
     <lastmod>2018-05-28T03:07:55.914Z</lastmod>
     <data>
@@ -140,6 +114,54 @@
            
              
               <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-12/gem-note.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>GEM 笔记</title>
+        <pubTime>2016-10-12T07:44:28.000Z</pubTime>
+        
+        <tag>Software</tag>
+         
+        <tag>Ruby</tag>
+         
+        <tag>GEM</tag>
+         
+         
+           
+             
+              <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
+    <lastmod>2018-05-28T03:07:55.914Z</lastmod>
+    <data>
+        <display>
+        <title>Ubuntu 下增加 Swap</title>
+        <pubTime>2016-10-21T02:29:11.000Z</pubTime>
+        
+        <tag>Ubuntu</tag>
+         
+        <tag>Server</tag>
+         
+        <tag>Swap</tag>
+         
+         
+           
+             
+              <breadCrumb title="Server" url="http://www.robbs.win/categories/Server/"/>
           
         </display>
     </data>
@@ -493,28 +515,6 @@
 
     
   <url>
-    <loc>http://www.robbs.win/2016-10-25/Create-Yii2-Project.html</loc>
-    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
-    <data>
-        <display>
-        <title>创建 Yii2 项目</title>
-        <pubTime>2016-10-25T14:07:50.000Z</pubTime>
-        
-        <tag>PHP</tag>
-         
-        <tag>Yii2</tag>
-         
-         
-           
-             
-              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.robbs.win/2016-11-16/DynamoDB-Ubuntu.html</loc>
     <lastmod>2018-05-28T03:07:55.853Z</lastmod>
     <data>
@@ -530,6 +530,28 @@
            
              
               <breadCrumb title="Software" url="http://www.robbs.win/categories/Software/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.robbs.win/2016-10-25/Create-Yii2-Project.html</loc>
+    <lastmod>2018-05-28T03:07:55.853Z</lastmod>
+    <data>
+        <display>
+        <title>创建 Yii2 项目</title>
+        <pubTime>2016-10-25T14:07:50.000Z</pubTime>
+        
+        <tag>PHP</tag>
+         
+        <tag>Yii2</tag>
+         
+         
+           
+             
+              <breadCrumb title="Develop" url="http://www.robbs.win/categories/Develop/"/>
           
         </display>
     </data>

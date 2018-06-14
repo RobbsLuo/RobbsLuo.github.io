@@ -4,6 +4,45 @@
   
     
     <entry>
+      <title><![CDATA[JavaScript实现依次执行异步任务]]></title>
+      <url>http://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</url>
+      <content type="html"><![CDATA[<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>现有 n 个异步任务，这 n 个异步任务是依次执行且下一个异步任务依赖上一个异步任务的结果作参数，问如何实现。</p>
+<h2 id="解法1：for-循环-await"><a href="#解法1：for-循环-await" class="headerlink" title="解法1：for 循环 + await"></a>解法1：for 循环 + await</h2><p>简单的 for 循环是依次进行循环的，不像 Array.forEach，Array.map 方法是并发执行的，利用这一特点加 async / await 很容易写出下面这样的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> sleep = <span class="function"><span class="params">delay</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      setTimeout(<span class="function"><span class="params">_</span> =&gt;</span> resolve(), delay)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> task = <span class="function">(<span class="params">i</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="keyword">async</span> (resolve, reject) =&gt; &#123;</span><br><span class="line">      <span class="keyword">await</span> sleep(<span class="number">500</span>)</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">`now is <span class="subst">$&#123;i&#125;</span>`</span>)</span><br><span class="line">      ++i</span><br><span class="line">      resolve(i)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">let</span> param = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">    param = <span class="keyword">await</span> task(param)</span><br><span class="line">  &#125;  </span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">now is 0</span><br><span class="line">now is 1</span><br><span class="line">now is 2</span><br><span class="line">now is 3</span><br></pre></td></tr></table></figure>
+<p>效果虽然做到了，但是看到 param 这个局部变量就很不爽，请看解法2。</p>
+<h2 id="解法2：Array-prototype-reduce"><a href="#解法2：Array-prototype-reduce" class="headerlink" title="解法2：Array.prototype.reduce"></a>解法2：Array.prototype.reduce</h2><p>关于 <code>Array.prototype.reduce</code> 方法相信大部分小伙伴初见时都是用来数组求和。不了解的小伙伴可以点击链接了解下 <a href="https://developer.mozilla.org/zhCN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce" target="_blank" rel="noopener">reduce</a> 。</p>
+<p><code>reduce</code>有<code>初始值</code>，<code>积累值</code>，以及<code>当前值</code>的概念。其中 <code>积累值</code>可以看作是前一个值，通过返回<code>积累值</code>又可以看作是 下一个值（可能说的比较绕，可以参照 Redux 的 中间件执行顺序 的源码，也是用的 reduce）。使用<code>reduce</code>来解决问题的代码为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> sleep = <span class="function"><span class="params">delay</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">_</span> =&gt;</span> resolve(), delay)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> task = <span class="function">(<span class="params">i</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="keyword">async</span> (resolve, reject) =&gt; &#123;</span><br><span class="line">    <span class="keyword">await</span> sleep(<span class="number">500</span>)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`now is <span class="subst">$&#123;i&#125;</span>`</span>)</span><br><span class="line">    ++i</span><br><span class="line">    resolve(i)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[task, task, task, task].reduce(<span class="keyword">async</span> (prev, task) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> prev</span><br><span class="line">  <span class="keyword">return</span> task(res)</span><br><span class="line">&#125;, <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">now is 0</span><br><span class="line">now is 1</span><br><span class="line">now is 2</span><br><span class="line">now is 3</span><br></pre></td></tr></table></figure>
+<p>可以这样理解 <code>prev</code> 和 <code>task</code>：</p>
+<ul>
+<li>prev：前一个 异步任务（promise）</li>
+<li>task：当前的异步任务</li>
+</ul>
+<p>当前的异步任务需要上一个异步任务的结果作参数，故很显然要 <code>await prev</code>。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> JavaScript </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> JavaScript </tag>
+            
+            <tag> Async </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[JavaScript Currying]]></title>
       <url>http://www.robbs.win/2018-06-11/JavaScript-Currying.html</url>
       <content type="html"><![CDATA[<p><code>Currying</code>柯里化是函数式语言都有的一个特性，如Perl，Python，JavaScript。本篇就借用一下JavaScript，介绍一下柯里化的思想及应用。假设函数库里提供这样一个拼接URL地址的函数：</p>
