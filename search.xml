@@ -290,9 +290,9 @@
       
         <tags>
             
-            <tag> AirFlow </tag>
-            
             <tag> Server </tag>
+            
+            <tag> AirFlow </tag>
             
             <tag> Supervisord </tag>
             
@@ -543,9 +543,9 @@
       
         <tags>
             
-            <tag> Server </tag>
-            
             <tag> Ubuntu </tag>
+            
+            <tag> Server </tag>
             
             <tag> Swap </tag>
             
@@ -628,13 +628,13 @@
       
         <tags>
             
-            <tag> Server </tag>
-            
             <tag> Ubuntu </tag>
             
             <tag> HTTPS </tag>
             
             <tag> Nginx </tag>
+            
+            <tag> Server </tag>
             
         </tags>
       
@@ -688,11 +688,11 @@
       
         <tags>
             
-            <tag> Server </tag>
-            
             <tag> Ubuntu </tag>
             
             <tag> Nginx </tag>
+            
+            <tag> Server </tag>
             
         </tags>
       
