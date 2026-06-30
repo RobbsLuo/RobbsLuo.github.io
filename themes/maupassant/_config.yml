@@ -142,13 +142,15 @@ links: []
 
 timeline:
   - num: 1
-    word: 2014/06/12-Start
+    word: 2016/09/23 - 博客开篇（首篇《Linux 常用命令》）
   - num: 2
-    word: 2014/11/29-XXX
+    word: 2016 - Linux 与运维基础（16 篇）
   - num: 3
-    word: 2015/02/18-DDD
+    word: 2017 - 持续积累（3 篇）
   - num: 4
-    word: More
+    word: 2018 - 架构与前端探索（8 篇）
+  - num: 5
+    word: 2026/06 - 升级 Hexo 8，主题焕新上线
 
 # Static files
 js: js
