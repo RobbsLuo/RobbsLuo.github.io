@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
+    <loc>http://www.robbs.win/2016-10-12/gem-note.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-12/gem-note.html</loc>
+    <loc>http://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -56,15 +56,6 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-24/Siege.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://www.robbs.win/2016-11-18/Raiils-Cache-Simple.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -74,7 +65,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
+    <loc>http://www.robbs.win/2016-10-24/Siege.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -92,7 +83,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
+    <loc>http://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -110,7 +101,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html</loc>
+    <loc>http://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -119,7 +110,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
+    <loc>http://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -137,6 +128,15 @@
   </url>
   
   <url>
+    <loc>http://www.robbs.win/2016-10-11/Https-Nginx.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://www.robbs.win/2017-04-25/Install-MongoDB-on-ubuntu16-04.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -146,7 +146,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2016-10-11/Https-Nginx.html</loc>
+    <loc>http://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -164,6 +164,15 @@
   </url>
   
   <url>
+    <loc>http://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -173,7 +182,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
+    <loc>http://www.robbs.win/2018-05-10/How-to-become-an-excellent-architect.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -201,15 +210,6 @@
   
   <url>
     <loc>http://www.robbs.win/2018-06-05/MicroService-Deployment.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -319,13 +319,6 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/tags/Humanity/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>http://www.robbs.win/tags/AirFlow/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
@@ -341,13 +334,6 @@
   
   <url>
     <loc>http://www.robbs.win/tags/Supervisord/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/tags/MongoDB/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -375,6 +361,13 @@
   </url>
   
   <url>
+    <loc>http://www.robbs.win/tags/MongoDB/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>http://www.robbs.win/tags/Shadowsocks/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
@@ -389,6 +382,13 @@
   </url>
   
   <url>
+    <loc>http://www.robbs.win/tags/Currying/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>http://www.robbs.win/tags/Async/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
@@ -396,7 +396,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/tags/Currying/</loc>
+    <loc>http://www.robbs.win/tags/Humanity/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -438,13 +438,6 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/tags/Process-Manager/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>http://www.robbs.win/tags/OAuth/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
@@ -452,7 +445,7 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/tags/Siege/</loc>
+    <loc>http://www.robbs.win/tags/Process-Manager/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -480,7 +473,21 @@
   </url>
   
   <url>
-    <loc>http://www.robbs.win/tags/Tips/</loc>
+    <loc>http://www.robbs.win/tags/Siege/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://www.robbs.win/tags/PPA/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://www.robbs.win/tags/Sources/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -488,6 +495,27 @@
   
   <url>
     <loc>http://www.robbs.win/tags/Swap/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://www.robbs.win/tags/Tips/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://www.robbs.win/tags/DevOps/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://www.robbs.win/tags/VIPS/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -515,6 +543,13 @@
   </url>
   
   <url>
+    <loc>http://www.robbs.win/tags/GEM/</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>http://www.robbs.win/tags/Mina/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
@@ -523,41 +558,6 @@
   
   <url>
     <loc>http://www.robbs.win/tags/Deploy/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/tags/PPA/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/tags/Sources/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/tags/GEM/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/tags/DevOps/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://www.robbs.win/tags/VIPS/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
