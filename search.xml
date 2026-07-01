@@ -182,9 +182,9 @@
       
         <tags>
             
-            <tag> Architect </tag>
-            
             <tag> Container </tag>
+            
+            <tag> Architect </tag>
             
         </tags>
       
@@ -659,9 +659,9 @@
       
         <tags>
             
-            <tag> PHP </tag>
-            
             <tag> Server </tag>
+            
+            <tag> PHP </tag>
             
             <tag> Process Manager </tag>
             
