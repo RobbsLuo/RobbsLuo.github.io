@@ -26,9 +26,11 @@ html(lang=config.language)
         - for (var i in theme.menu)
           +a_with_current(theme.menu[i].directory, __(theme.menu[i].page), theme.menu[i].icon)
         if config.language && config.language.indexOf('en') === 0
-          +a_with_current('/', '中文', 'fa-language')
+          a(href='/')
+            i.fa.fa-language= ' 中文'
         else
-          +a_with_current('/en/', 'English', 'fa-language')
+          a(href='/en/')
+            i.fa.fa-language= ' English'
 
     #layout.pure-g
       .pure-u-1.pure-u-md-3-4: .content_container
