@@ -1,0 +1,10 @@
+# 英文版站点配置
+# 用法：hexo generate --config _config.yml,_config.en.yml （后者覆盖前者）
+# 输出到 public/en/，界面使用主题 en.yml
+
+language: en
+source_dir: source/en
+public_dir: public/en
+url: https://www.robbs.win/en/
+root: /en/
+permalink: :year-:month-:day/:title.html
