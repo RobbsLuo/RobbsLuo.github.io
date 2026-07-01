@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Robbs的个人博客，记录平时在学习实践过程中的一些问题、方法、文档等等。"><meta name="keywords" content="Robbs,个人博客,Linux,运维,DevOps,架构,PHP,Ruby,Rails,JavaScript,Nginx,微服务,后端开发"><title>On Architecture | Robbs</title><link rel="stylesheet" type="text/css" href="/en/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/en/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/en/favicon.ico"><link rel="apple-touch-icon" href="/en/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/en/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/en/atom.xml"><script src="https://www.googletagmanager.com/gtag/js?id=UA-87287972-1" async></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-87287972-1');
+</script><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><div class="darkmode-toggle">🌓</div><script>var prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+var toggle = document.querySelector('.darkmode-toggle');
+var html = document.querySelector('html');
+
+html.dataset.dark = localStorage.dark || prefersDarkMode.matches;
+
+toggle.addEventListener('click', () => {
+localStorage.dark = !(html.dataset.dark == 'true');
+html.dataset.dark = localStorage.dark;
+});</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">On Architecture</h1><a id="logo" href="/en/.">Robbs</a><p class="description">己所不欲，勿施于人</p></div><div id="nav-menu"><a class="current" href="/en/."><i class="fa fa-home"> Home</i></a><a href="/en/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/en/about/"><i class="fa fa-user"> About</i></a><a href="/en/atom.xml"><i class="fa fa-rss"> RSS</i></a><a href="/en/"><i class="fa fa-language"> 中文</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">On Architecture</h1><div class="post-meta">2018-05-16<span> | </span><span class="category"><a href="/en/categories/Architect/">Architect</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 2.1k</span><span class="post-meta-item-text"> Words</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-clock-o"></i><span class="post-count"> 13</span><span class="post-meta-item-text"> Minutes</span></span></span></div><div class="post-content"><p>Recently I ran an internal architecture exchange&#x2F;training session at my company, covering the concept of architecture, its forms, and the principles of architectural design.<br><a href="http://www.rowkey.me/arch-ppt/index.html">View the slides</a></p>
+<h2 id="What-Is-Architecture"><a href="#What-Is-Architecture" class="headerlink" title="What Is Architecture"></a>What Is Architecture</h2><ul>
+<li>Personnel allocation and project planning within a department</li>
+<li>Floor planning and functional facility planning in building design</li>
+<li>Road layout, functional building design, and entertainment facility design in a city</li>
+<li>Urban planning, expressway planning, and high-speed rail route planning for a country<blockquote>
+<p><strong>All is architecture!!!</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="The-Essence-of-Architecture"><a href="#The-Essence-of-Architecture" class="headerlink" title="The Essence of Architecture"></a>The Essence of Architecture</h2><ul>
+<li><strong>Core lifecycle</strong>: Sub-lifecycles whose subject remains unchanged after splitting.</li>
+<li><strong>Non-core lifecycle</strong>: Sub-lifecycles whose subject changes after splitting.<br><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526437772448-7783bdeb-4306-4847-85db-3754065cdea8-image.png"><blockquote>
+<p><strong>The essence of architecture lies in continuously splitting lifecycles (in a tree structure) so that business can run in parallel spatially. Each lifecycle that is split off has its own boundary and does not affect other lifecycles; all changes are settled within its own lifecycle. This is what high cohesion means.</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Software-Architecture"><a href="#Software-Architecture" class="headerlink" title="Software Architecture"></a>Software Architecture</h2><blockquote>
+<p><strong>Software lifecycle: software development lifecycle + software runtime lifecycle (software access, software features, software monitoring)</strong></p>
+</blockquote>
+<p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526437909260-9eff08f6-b8c8-436d-81ff-2ebc3f639464-image.png"></p>
+<h2 id="Three-Elements-of-Good-Software-Architecture"><a href="#Three-Elements-of-Good-Software-Architecture" class="headerlink" title="Three Elements of Good Software Architecture"></a>Three Elements of Good Software Architecture</h2><ul>
+<li><strong>Firmness</strong>: Achieve a satisfactory level of freedom from damaging failure.</li>
+<li><strong>Commodity</strong>: Utility to accomplish the tasks it is purported to be for.</li>
+<li><strong>Delight</strong>: Pleasure in use.<blockquote>
+<p><strong>Buildings (Solid, Useful, Beautiful) -&gt; Software (Firmness, Commodity, Delight)</strong></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Overview-of-the-Architecture-Process"><a href="#Overview-of-the-Architecture-Process" class="headerlink" title="Overview of the Architecture Process"></a>Overview of the Architecture Process</h2><ol>
+<li><strong>Business architecture</strong>: A top-down view of the architecture, including business rules, business modules, and business processes. It mainly decomposes the business of the whole system, designs the domain models, and transforms real-world business into abstract objects.</li>
+<li><strong>Technical architecture</strong>: A cross-sectional view of the architecture, an abstraction from hardware to application, including abstraction layers and programming interfaces. Technical architecture and business architecture are complementary; every part of the business architecture has its own technical architecture. These two parts must be done well first.</li>
+<li><strong>Data architecture</strong>: The storage architecture, mainly referring to the design of data structures. It determines the characteristics of the application’s data sources and is the foundation of both business architecture and technical architecture.</li>
+<li><strong>Deployment architecture</strong>: The topology architecture, including how many nodes the system is deployed on, the relationships between nodes, high availability of servers, fault tolerance, network interfaces and protocols, etc. It determines how the application runs, its runtime performance, maintainability, and scalability, and is the foundation of all architectures.</li>
+<li><strong>Organizational architecture</strong>: The team architecture, including the organizational form of the project, personnel composition, and responsibilities. It is the supporting facility for all the architectures above. A good organizational architecture ensures the effective implementation and advancement of the other architectures.<blockquote>
+<p><strong>As business and load change, the architecture needs to be continuously reviewed and refactored to drive its evolution.</strong></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="Business-Architecture"><a href="#Business-Architecture" class="headerlink" title="Business Architecture"></a>Business Architecture</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438152354-6a181918-13db-4d45-855f-88257de3f429-image.png" alt="Top-down view"></p>
+<ul>
+<li>Business execution is the core module of the application and its primary function.</li>
+<li>Data analysis is an auxiliary module of the application, helping with data-driven R&amp;D, business intelligence research, and improving user experience.</li>
+<li>System management is the foundational part of the application. Doing a good job of deployment, monitoring of various metrics, and backup of critical data helps the application iterate and deploy quickly and run stably.</li>
+</ul>
+<h2 id="Technical-Architecture-Overview"><a href="#Technical-Architecture-Overview" class="headerlink" title="Technical Architecture - Overview"></a>Technical Architecture - Overview</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438216252-267d0e5e-63b3-44dc-b988-c9eb1758a10f-image.png" alt="Cross-sectional view"></p>
+<ul>
+<li>Business data sources, data rule engines, and analysis rules support the presentation of the interactive UI.</li>
+<li>Infrastructure and common services build up the underlying business logic.</li>
+</ul>
+<h2 id="Technical-Architecture-Specifics"><a href="#Technical-Architecture-Specifics" class="headerlink" title="Technical Architecture - Specifics"></a>Technical Architecture - Specifics</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438239613-1cdabcae-9196-4aad-869d-94285ae76d41-image.png"></p>
+<ul>
+<li>Both UI and applications belong to the application layer, which provides the concrete business implementation. Among them, UI is the primary form of expression for the view layer.</li>
+<li>Applications and services belong to the control logic and access channels, where services hold the main business logic. Services can expose service interfaces for applications to call.</li>
+<li>Core, drivers, and data make up the data layer. This is the operation logic for all data related to the business and corresponds to the model layer. Among them, the core can expose interfaces outward for services to call.</li>
+</ul>
+<h2 id="Evolution-of-Architecture"><a href="#Evolution-of-Architecture" class="headerlink" title="Evolution of Architecture"></a>Evolution of Architecture</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438275615-26fee321-9534-4a04-b51e-7806434b66e7-image.png"></p>
+<ul>
+<li>In a monolithic application architecture, all logic resides within the application and core modules, including business logic, data operations, and so on.</li>
+<li>Through a data-driven approach, data operation interfaces are unified to shield the differences between data sources, allowing vertical partitioning based on resources.</li>
+<li>Modules are decoupled and expose APIs outward as services, forming a distributed service architecture.</li>
+</ul>
+<h2 id="Deployment-Architecture"><a href="#Deployment-Architecture" class="headerlink" title="Deployment Architecture"></a>Deployment Architecture</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438314473-c5da5a10-c62d-49a0-9209-5e43e54b88ca-image-resized.png"></p>
+<ul>
+<li>The interactive UI is deployed independently, including forms such as web and app.</li>
+<li>The application is deployed independently as a single node or a cluster.</li>
+<li>Services, the core, and drivers are deployed as a whole.</li>
+<li>Data sources are deployed independently.</li>
+<li>A simple application&#x2F;service cluster: LVS (using keepalived for active&#x2F;standby) + Nginx (reverse proxy) + Tomcat (business container).</li>
+</ul>
+<h2 id="Data-Architecture"><a href="#Data-Architecture" class="headerlink" title="Data Architecture"></a>Data Architecture</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438343067-0e351afe-72f7-4a7f-a6be-72fab9cd54c8-image.png"></p>
+<ul>
+<li>The data interaction logic and data flow presented by the interactive UI determine the main data design of the business.</li>
+<li>The original business data, logs, and the data needed for statistics support the report output required by data analysis.</li>
+<li>Real-time information, under certain rules and state machine engines, can power dashboard features such as real-time status monitoring.</li>
+</ul>
+<h2 id="Five-Attributes-of-Data"><a href="#Five-Attributes-of-Data" class="headerlink" title="Five Attributes of Data"></a>Five Attributes of Data</h2><ul>
+<li><strong>Access frequency</strong>: Read&#x2F;write frequency. Read-only and frequently accessed data can be redundantly stored in multiple copies.</li>
+<li><strong>Consistency requirement</strong>: Data with high consistency requirements must be strictly guaranteed to be accurate.</li>
+<li><strong>Access permission</strong>: In API design, data of different granularities is exposed according to different permissions. PO -&gt; VO is a description of the same entity under different permissions.</li>
+<li><strong>Data importance</strong>: Cannot be lost &#x2F; partial loss allowed &#x2F; only a cache &#x2F; no need to persist.</li>
+<li><strong>Data confidentiality</strong>: Plaintext internally allowed &#x2F; plaintext internally not allowed &#x2F; can be made public.</li>
+</ul>
+<h2 id="Data-Design"><a href="#Data-Design" class="headerlink" title="Data Design"></a>Data Design</h2><ul>
+<li>Fully understand the interactive UI so you know which data the UI is associated with and which data can be cached.</li>
+<li>Fully understand the business so you know clearly which data needs to be recorded and the relationships between data.</li>
+<li>Database design should pay attention to storage efficiency:<ul>
+<li>Reduce transactions</li>
+<li>Reduce JOIN queries</li>
+<li>Use indexes appropriately</li>
+<li>Consider using caching</li>
+<li>…</li>
+</ul>
+</li>
+<li>In data statistics scenarios, data statistics with high real-time requirements can use Redis; non-real-time data can use separate tables, with data updated through asynchronous queue computation or scheduled calculations. In addition, for statistical data with high consistency requirements, transactions or scheduled reconciliation mechanisms are needed to ensure accuracy.</li>
+</ul>
+<h2 id="What-Is-an-Architect"><a href="#What-Is-an-Architect" class="headerlink" title="What Is an Architect"></a>What Is an Architect</h2><ul>
+<li>Lifecycle identification: rationally split lifecycles.</li>
+<li>Identify problems and the subject of the problem. Never mistake a solution for a problem. Discovering a problem is always more important than solving it!!!</li>
+<li>Focus on business and technology, and ensure business growth.</li>
+<li>OKR architecture: be responsible for breakthroughs in key technologies, resolve technical feasibility issues, and deliver the key results that take things from 0 to 1.</li>
+<li><strong>Authority must match responsibility, to ensure the architecture is executed!!!</strong></li>
+</ul>
+<h2 id="Essential-Qualities-of-an-Architect"><a href="#Essential-Qualities-of-an-Architect" class="headerlink" title="Essential Qualities of an Architect"></a>Essential Qualities of an Architect</h2><ul>
+<li>Stand high, see far, dig deep.</li>
+<li>Master a certain technology so you can draw analogies at a fundamental level and quickly grasp other technologies.</li>
+<li>Treat all technologies equally: there is only suitable or unsuitable, never liked or disliked.</li>
+<li>Have a broad vision, understand the pros and cons of different technologies, know which open-source project can directly satisfy this or that requirement, and be able to judge whether you need to reinvent the wheel.</li>
+<li>Master design patterns, but do not overuse them.</li>
+<li>Split the system into multiple subsystems or modules, keeping modules as loosely coupled as possible, so that development tasks that previously could only run serially can proceed in parallel, and the timeline can be shortened by investing more people.</li>
+<li>Clearly know where the system’s bottlenecks are, continuously locate bottlenecks in technical difficulty, R&amp;D progress, performance, memory, and other aspects, constantly assign key personnel to resolve bottlenecks, and eliminate hidden risks before they explode.</li>
+<li>Be able to anticipate how requirements may change and make forward-looking designs accordingly.</li>
+</ul>
+<h2 id="Six-Step-Architecture-Thinking-Method"><a href="#Six-Step-Architecture-Thinking-Method" class="headerlink" title="Six-Step Architecture Thinking Method"></a>Six-Step Architecture Thinking Method</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438498119-90bbb34f-ef90-43cb-939b-aa0f696262ce-image.png" alt="Six-Step Architecture Thinking Method"></p>
+<h2 id="Architecture-Principles-Overview"><a href="#Architecture-Principles-Overview" class="headerlink" title="Architecture Principles - Overview"></a>Architecture Principles - Overview</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438513492-00ba90a2-24fb-460d-aa4c-d30bed417433-image.png"></p>
+<h2 id="Architecture-Principles"><a href="#Architecture-Principles" class="headerlink" title="Architecture Principles"></a>Architecture Principles</h2><ul>
+<li><strong>Avoid over-engineering</strong>: The simplest solution is the easiest to implement and maintain and also avoids wasting resources. But the solution should include provisions for extension.</li>
+<li><strong>Redundancy design</strong>: Provide node redundancy for services and databases to ensure high availability. This is achieved through database master-slave replication and application clusters.</li>
+<li><strong>Active-active data centers</strong>: For disaster recovery and to fundamentally guarantee high availability of the application. Multiple active data centers must be built so that a failure of one data center due to uncontrollable factors does not render the entire system unavailable.</li>
+<li><strong>Stateless design</strong>: APIs, interfaces, and so on must not have front-back dependencies; one resource is not affected by changes to another. A stateless system can scale better. If state is unavoidable, either the client manages it or the server manages it with a distributed cache.</li>
+<li><strong>Rollback capability</strong>: Any business, especially critical business, must have a recovery mechanism. This can be implemented with log-based WAL or event-based Event Sourcing, etc.</li>
+<li><strong>Disabling &#x2F; self-protection</strong>: Provide rate-limiting mechanisms so that when upstream traffic exceeds the system’s load capacity, overflowing requests can be rejected. This can be done via manual switches or automatic switches (monitoring abnormal traffic behavior) to block traffic at the front of the application.</li>
+<li><strong>Traceability</strong>: When a problem occurs in the system, you can locate the trajectory of the request and the request information at each step. Distributed tracing systems solve this kind of problem.</li>
+<li><strong>Monitorability</strong>: Being monitorable is key to keeping the system running stably. This includes monitoring of business logic, application processes, and system resources the application depends on (CPU, disk, etc.). Every system needs to monitor well at these levels.</li>
+<li><strong>Fault isolation</strong>: Isolating the resources (threads, CPU) and services that a system depends on ensures that a failure of one service does not affect calls to other services. Fault isolation can be achieved through thread pools or by deploying nodes separately.</li>
+<li><strong>Mature and controllable technology selection</strong>: Use mainstream, mature technologies with good documentation and ample support resources. Choose the appropriate technology rather than the hottest one to implement the system.</li>
+<li><strong>Tiered storage</strong>: Memory -&gt; SSD disk -&gt; traditional hard disk -&gt; magnetic tape. Data can be stored in tiers according to its importance and lifecycle.</li>
+<li><strong>Caching design</strong>: Isolating requests from backend logic and storage is a mechanism based on the locality principle. This includes client-side caching (pre-distributing resources), Nginx caching, local caching, and distributed caching.</li>
+<li><strong>Asynchronous design</strong>: For interfaces where the caller does not care about the result or allows a delayed result, responding asynchronously via a queue can significantly improve system performance; when calling other services, not waiting for the service to return before returning directly also improves response performance. Asynchronous queues are also a common means of solving distributed transactions.</li>
+<li><strong>Forward-looking design</strong>: Based on industry experience and judgment, design extensibility and backward compatibility in advance.</li>
+<li><strong>Horizontal scaling</strong>: Compared to vertical scaling, being able to solve problems by adding more machines is the top priority, and the system’s load capacity can scale close to infinitely. In addition, automatically adjusting capacity based on system load via <code>cloud computing</code> technology can save costs while ensuring service availability.</li>
+<li><strong>Build and release in small steps</strong>: Iterate the project quickly, and fail fast. Avoid project plans with overly long spans of time.</li>
+<li><strong>Automation</strong>: Automating packaging and testing is called continuous integration; automating deployment is called continuous deployment. Automation is the fundamental guarantee for rapid iteration and trial-and-error.</li>
+</ul>
+<h2 id="Architecture-Principle-Scalability"><a href="#Architecture-Principle-Scalability" class="headerlink" title="Architecture Principle - Scalability"></a>Architecture Principle - Scalability</h2><p><img src="/en/en/2018-05-16/Talk-About-The-Architecture/Talk-About-The-Architecture/1526438712437-0ddc81c3-0e3f-437a-8b2f-721e5a730e49-image.png" alt="Three-axis scaling theory"></p>
+<ul>
+<li>X-axis: horizontal duplication or cloning, goal-oriented. Examples include database read-write separation, table replication, replication, etc. Monolithic applications or dependent services are made redundant, and load balancing improves the system’s load capacity.</li>
+<li>Y-axis: function&#x2F;service-oriented, such as vertical applications and distributed services. This splits a monolithic application into smaller applications or services based on function.</li>
+<li>Z-axis: resource-oriented, such as horizontal database sharding. Resources are partitioned to spread the load across different nodes.<blockquote>
+<ul>
+<li><strong>Avoid relying on the database’s computational features (functions, stored procedures, triggers, etc.). Put the load on the business application side, which is easier to scale.</strong></li>
+<li><strong>Scalability plan principle: Design for 20x, implement for 3x, deploy for 1.5x (DID).</strong></li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h2 id="Five-Techniques-for-Improving-System-Response-Performance"><a href="#Five-Techniques-for-Improving-System-Response-Performance" class="headerlink" title="Five Techniques for Improving System Response Performance"></a>Five Techniques for Improving System Response Performance</h2><ul>
+<li><strong>Asynchrony</strong>: Queue buffering, asynchronous requests.</li>
+<li><strong>Concurrency</strong>: Use multiple CPUs and threads to execute business logic.</li>
+<li><strong>Locality principle</strong>: Caching, tiered storage.</li>
+<li><strong>Reduce IO</strong>: Merge fine-grained interfaces into coarse-grained ones; for frequent overwrite operations, only perform the last one. One thing to pay special attention to here: <strong>avoid calling external services inside loops in your code. A better practice is to use a coarse-grained batch interface outside the loop and make a single request.</strong></li>
+<li><strong>Partitioning</strong>: Keep the size of frequently accessed data sets within a reasonable range.</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li>“Scalability Rules” by Martin L. Abbott &#x2F; Michael T. Fisher (Chinese edition edited by Chen Bin)</li>
+<li>“Liao Liao Jia Gou (On Architecture)” by Wang Gaikai</li>
+<li>“An Architect’s First Lesson” by Cai Xueyong</li>
+<li>Six-Step Architecture Thinking Method by Xia Huaxia @ Meituan</li>
+</ul>
+<hr>
+<blockquote>
+<p>Source: <a href="http://www.rowkey.me/arch-ppt/index.html">http://www.rowkey.me/arch-ppt/index.html</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/en/js/share.js?v=1.0.0" async></script><a class="article-share-link" data-url="https://www.robbs.win/en/2018-05-16/Talk-About-The-Architecture.html" data-id="cuidnADiwMyU85Yp7kMxgNkfd" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACsklEQVR42u3awW7jMAwE0P7/T3eBPe3FyQwpZVvg+RSkhqPng8SS8/UVX99/r6fP/36T3/P6ya/vPHzh4eHhjZb+dD3d0z759UJf/+7rV/ZmbXh4eHjXeMmWnW/3CaO9JzlC8PDw8H4ab1MKJ5t+/rLw8PDwfhdv1lyYleN4eHh4P5mXNCNmx0ZeoCdNh4u9Fjw8PLyYtx+Aff7zR+d7eHh4ePGR0G7K7XBr9vqK1eLh4eFd4OVt1mS/nbVxk9eRHAnFfwx4eHh4a167rLyhkAP2I7e6+MbDw8Mb/bU9EvbxqeT7fRgLDw8P7zYvGVPljYk8CtCGBvK4AB4eHt49Xt4CyLfypJieleaHWw94eHh4I95su28XlBfrm3Zt3YzAw8PDW/DysrUdVhWNgzLqGuHx8PDwLvDa5mleUm8WWgSqkmfi4eHhHeXlj9g0ZNtRVhu0evweDw8P7wJvEwjYlMU5ckbCw8PDu81rQ1fJgs62cfNw2GMzAg8PD+8Qrw6AluOxWXxqc9g8/seAh4eHd4iXb+I5u93Q22hCXpTj4eHh3ea1rdW2cXB2PJbHF/Dw8PDu8WaRplmwdTNgOxy6wsPDw1vwZiGndkjWluabAAEeHh7ebd7mcfXMLf6+jRHUaVw8PDy8EW8/ZNqX2u1ryhu7eHh4eGd5s2K6bT204apZ6Y+Hh4f3eV6y3ec/OYuitkfRm8MMDw8P7wJvdiWvIC+y20jrsJmLh4eHd4j3XV758bBpE7e/8rhaPDw8vAu8zbabl8LJUZG3httoAh4eHt4NXt0eXccI2uWu5nt4eHh413ht27Rd6GyJx1oSeHh4eP+Jdwo5O1qSO/Hw8PB+C68NbLXt2jbwOiyp8fDw8Epe3ozID4kZsj0A3rRI8PDw8C7wZkGrfUF8u1jHw8PDu8D7A7IRfYJYINz3AAAAAElFTkSuQmCC">Share</a><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/en/tags/Architect/" rel="tag">Architect</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/en/tags/Humanity/" rel="tag">Humanity</a></li></ul></div><div class="post-nav"><a class="pre" href="/en/2018-05-17/Oauth2.html">Understanding OAuth 2.0</a><a class="next" href="/en/2018-05-14/Container-Application-Design.html">Principles, Patterns, and Anti-Patterns of Container-Based Application Design</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="https://www.robbs.win/en"/></form></div><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>己所不欲，勿施于人</p><a class="info-icon" href="mailto:work@robbs.vip" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/RobbsLuo" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/en/categories/Architect/">Architect</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/DevOps/">DevOps</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/Develop/">Develop</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/JavaScript/">JavaScript</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/PHP/">PHP</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/Rails/">Rails</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/Server/">Server</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/en/categories/Software/">Software</a><span class="category-list-count">6</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/en/tags/Aliyun/" style="font-size: 15px;">Aliyun</a> <a href="/en/tags/IPv6/" style="font-size: 15px;">IPv6</a> <a href="/en/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/en/tags/Yii2/" style="font-size: 15px;">Yii2</a> <a href="/en/tags/DynamoDB/" style="font-size: 15px;">DynamoDB</a> <a href="/en/tags/Software/" style="font-size: 15px;">Software</a> <a href="/en/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a> <a href="/en/tags/HTTPS/" style="font-size: 15px;">HTTPS</a> <a href="/en/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/en/tags/Server/" style="font-size: 15px;">Server</a> <a href="/en/tags/AirFlow/" style="font-size: 15px;">AirFlow</a> <a href="/en/tags/Supervisord/" style="font-size: 15px;">Supervisord</a> <a href="/en/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/en/tags/Architect/" style="font-size: 15px;">Architect</a> <a href="/en/tags/Humanity/" style="font-size: 15px;">Humanity</a> <a href="/en/tags/Shadowsocks/" style="font-size: 15px;">Shadowsocks</a> <a href="/en/tags/JavaScript/" style="font-size: 15px;">JavaScript</a> <a href="/en/tags/Async/" style="font-size: 15px;">Async</a> <a href="/en/tags/Currying/" style="font-size: 15px;">Currying</a> <a href="/en/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/en/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/en/tags/Shell/" style="font-size: 15px;">Shell</a> <a href="/en/tags/Container/" style="font-size: 15px;">Container</a> <a href="/en/tags/Ruby/" style="font-size: 15px;">Ruby</a> <a href="/en/tags/Cache/" style="font-size: 15px;">Cache</a> <a href="/en/tags/Rails/" style="font-size: 15px;">Rails</a> <a href="/en/tags/OAuth/" style="font-size: 15px;">OAuth</a> <a href="/en/tags/Process-Manager/" style="font-size: 15px;">Process Manager</a> <a href="/en/tags/Swap/" style="font-size: 15px;">Swap</a> <a href="/en/tags/PPA/" style="font-size: 15px;">PPA</a> <a href="/en/tags/Sources/" style="font-size: 15px;">Sources</a> <a href="/en/tags/OSX/" style="font-size: 15px;">OSX</a> <a href="/en/tags/GEM/" style="font-size: 15px;">GEM</a> <a href="/en/tags/Siege/" style="font-size: 15px;">Siege</a> <a href="/en/tags/DevOps/" style="font-size: 15px;">DevOps</a> <a href="/en/tags/VIPS/" style="font-size: 15px;">VIPS</a> <a href="/en/tags/Mina/" style="font-size: 15px;">Mina</a> <a href="/en/tags/Deploy/" style="font-size: 15px;">Deploy</a> <a href="/en/tags/rbenv/" style="font-size: 15px;">rbenv</a> <a href="/en/tags/brew/" style="font-size: 15px;">brew</a> <a href="/en/tags/ruby/" style="font-size: 15px;">ruby</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/en/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html">Implementing Sequential Execution of Asynchronous Tasks in JavaScript</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2018-06-11/JavaScript-Currying.html">JavaScript Currying</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html">The Road of Standardization Construction of VIPS Operation and Maintenance</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2018-05-17/Oauth2.html">Understanding OAuth 2.0</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2018-05-16/Talk-About-The-Architecture.html">On Architecture</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2018-05-14/Container-Application-Design.html">Principles, Patterns, and Anti-Patterns of Container-Based Application Design</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2018-05-10/How-to-become-an-excellent-architect.html">How to Become an Excellent Architect</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2017-05-01/Aliyun-Open-IPv6.html">Enabling IPv6 Support on Alibaba Cloud</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2017-04-25/Install-MongoDB-on-ubuntu16-04.html">Install MongoDB on Ubuntu 16.04</a></li><li class="post-list-item"><a class="post-list-link" href="/en/2017-01-19/Install-And-Deploy-AirFlow.html">Installing and Deploying AirFlow</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/en/." rel="nofollow">Robbs.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/en/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/en/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><link rel="stylesheet" type="text/css" href="/en/css/search.css?v=1.0.0"><script type="text/javascript" src="/en/js/search.js?v=1.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+  search_path = 'search.xml';
+}
+var path = '/en/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/en/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/en/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/en/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/en/js/smartresize.js?v=1.0.0"></script></div></body></html>

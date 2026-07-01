@@ -11,7 +11,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
+    <loc>https://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -20,7 +20,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-10-12/gem-note.html</loc>
+    <loc>https://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-10-21/Ubuntu-Swap.html</loc>
+    <loc>https://www.robbs.win/2016-10-12/gem-note.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -48,15 +48,6 @@
   
   <url>
     <loc>https://www.robbs.win/2018-05-18/The-Road-Of-Standardization-Construction-Of-VIPS-Operation-And-Maintenance.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/2016-11-18/Raiils-Cache-Simple.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -84,6 +75,15 @@
   
   <url>
     <loc>https://www.robbs.win/2018-05-16/Talk-About-The-Architecture.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/2016-11-18/Raiils-Cache-Simple.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -155,15 +155,6 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/2016-11-08/Install-Shadowsocks-Server.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -173,7 +164,25 @@
   </url>
   
   <url>
+    <loc>https://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -192,15 +201,6 @@
   
   <url>
     <loc>https://www.robbs.win/2016-09-23/Linux-common-shells.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -277,14 +277,21 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Container/</loc>
+    <loc>https://www.robbs.win/tags/Architect/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Architect/</loc>
+    <loc>https://www.robbs.win/tags/Humanity/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Container/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -305,7 +312,14 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Humanity/</loc>
+    <loc>https://www.robbs.win/tags/DynamoDB/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Software/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -382,14 +396,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/DynamoDB/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Software/</loc>
+    <loc>https://www.robbs.win/tags/Async/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -431,13 +438,6 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Async/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/tags/Tips/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -445,21 +445,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Ruby/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Cache/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Rails/</loc>
+    <loc>https://www.robbs.win/tags/Process-Manager/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -474,6 +460,20 @@
   
   <url>
     <loc>https://www.robbs.win/tags/Sources/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/OSX/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Swap/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -508,7 +508,14 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/OSX/</loc>
+    <loc>https://www.robbs.win/tags/Mina/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Deploy/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -529,35 +536,28 @@
   </url>
   
   <url>
+    <loc>https://www.robbs.win/tags/Ruby/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Cache/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Rails/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/tags/GEM/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Process-Manager/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Mina/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Deploy/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Swap/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -587,14 +587,14 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/categories/JavaScript/</loc>
+    <loc>https://www.robbs.win/categories/Software/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/categories/Software/</loc>
+    <loc>https://www.robbs.win/categories/JavaScript/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
