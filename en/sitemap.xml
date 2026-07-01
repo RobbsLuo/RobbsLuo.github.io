@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.robbs.win/en/about/index.html</loc>
+    
+    <lastmod>2026-07-01</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/en/2016-10-20/PHP-Matters-Needing-Attention.html</loc>
     
     <lastmod>2026-07-01</lastmod>
@@ -245,14 +254,14 @@
 
   
   <url>
-    <loc>https://www.robbs.win/en/tags/PHP/</loc>
+    <loc>https://www.robbs.win/en/tags/Container/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/Yii2/</loc>
+    <loc>https://www.robbs.win/en/tags/Architect/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -267,6 +276,34 @@
   
   <url>
     <loc>https://www.robbs.win/en/tags/Software/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Aliyun/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/IPv6/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/PHP/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Yii2/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -301,13 +338,6 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/MongoDB/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/en/tags/AirFlow/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -322,42 +352,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/Aliyun/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/IPv6/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/OSX/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/JavaScript/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Currying/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Architect/</loc>
+    <loc>https://www.robbs.win/en/tags/MongoDB/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -371,6 +366,13 @@
   </url>
   
   <url>
+    <loc>https://www.robbs.win/en/tags/JavaScript/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/en/tags/Async/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -378,7 +380,14 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/Container/</loc>
+    <loc>https://www.robbs.win/en/tags/Currying/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Shadowsocks/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -406,7 +415,28 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/OAuth/</loc>
+    <loc>https://www.robbs.win/en/tags/OSX/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Ruby/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Cache/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Rails/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -420,7 +450,21 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/Shadowsocks/</loc>
+    <loc>https://www.robbs.win/en/tags/OAuth/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/PPA/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Sources/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -448,14 +492,21 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/PPA/</loc>
+    <loc>https://www.robbs.win/en/tags/Swap/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/tags/Sources/</loc>
+    <loc>https://www.robbs.win/en/tags/Mina/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/en/tags/Deploy/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -489,52 +540,10 @@
     <priority>0.2</priority>
   </url>
   
-  <url>
-    <loc>https://www.robbs.win/en/tags/Ruby/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Swap/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Cache/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Rails/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Mina/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/en/tags/Deploy/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
 
   
   <url>
-    <loc>https://www.robbs.win/en/categories/Develop/</loc>
+    <loc>https://www.robbs.win/en/categories/Architect/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -555,14 +564,14 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/categories/JavaScript/</loc>
+    <loc>https://www.robbs.win/en/categories/Develop/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/categories/Architect/</loc>
+    <loc>https://www.robbs.win/en/categories/JavaScript/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -583,14 +592,14 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/categories/DevOps/</loc>
+    <loc>https://www.robbs.win/en/categories/Rails/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/en/categories/Rails/</loc>
+    <loc>https://www.robbs.win/en/categories/DevOps/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

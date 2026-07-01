@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.robbs.win/en/about/index.html</loc>
+    
+    <lastmod>2026-07-01</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/about/index.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -20,15 +29,6 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/2016-10-25/Use-Mina-Deploy-Yii2.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -39,6 +39,15 @@
   
   <url>
     <loc>https://www.robbs.win/2016-10-12/gem-note.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/2016-12-26/Use-Brew-Install-Rbenv.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -92,6 +101,15 @@
   </url>
   
   <url>
+    <loc>https://www.robbs.win/2018-05-17/Oauth2.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/2016-10-20/PHP-Matters-Needing-Attention.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -102,15 +120,6 @@
   
   <url>
     <loc>https://www.robbs.win/2016-10-10/PHPFPM-Process-Manager.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/2018-05-17/Oauth2.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -155,15 +164,6 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-11-08/Install-Shadowsocks-Server.html</loc>
-    
-    <lastmod>2026-06-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/2018-06-11/JavaScript-Currying.html</loc>
     
     <lastmod>2026-06-29</lastmod>
@@ -173,7 +173,16 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</loc>
+    <loc>https://www.robbs.win/2016-11-08/Install-Shadowsocks-Server.html</loc>
+    
+    <lastmod>2026-06-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -200,7 +209,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2018-06-05/MicroService-Deployment.html</loc>
+    <loc>https://www.robbs.win/2018-06-14/JavaScript-implementation-successively-executes-the-asynchronous-task.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -209,7 +218,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/2016-09-30/Install-Nginx-PHP7-MySQL-on-Ubuntu16-04.html</loc>
+    <loc>https://www.robbs.win/2018-06-05/MicroService-Deployment.html</loc>
     
     <lastmod>2026-06-29</lastmod>
     
@@ -340,20 +349,6 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/AirFlow/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Supervisord/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/tags/PHP/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -368,14 +363,21 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/MongoDB/</loc>
+    <loc>https://www.robbs.win/tags/AirFlow/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Shadowsocks/</loc>
+    <loc>https://www.robbs.win/tags/Supervisord/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/MongoDB/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -396,7 +398,7 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Async/</loc>
+    <loc>https://www.robbs.win/tags/Shadowsocks/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -424,21 +426,21 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Tips/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Process-Manager/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://www.robbs.win/tags/OAuth/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Async/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Tips/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -480,7 +482,21 @@
   </url>
   
   <url>
+    <loc>https://www.robbs.win/tags/Process-Manager/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://www.robbs.win/tags/Siege/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Swap/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -501,7 +517,35 @@
   </url>
   
   <url>
-    <loc>https://www.robbs.win/tags/Swap/</loc>
+    <loc>https://www.robbs.win/tags/Mina/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Deploy/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/GEM/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/PPA/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.robbs.win/tags/Sources/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -523,41 +567,6 @@
   
   <url>
     <loc>https://www.robbs.win/tags/ruby/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Mina/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Deploy/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/PPA/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/Sources/</loc>
-    <lastmod>2026-07-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.robbs.win/tags/GEM/</loc>
     <lastmod>2026-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
