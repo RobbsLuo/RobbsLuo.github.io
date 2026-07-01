@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>Welcome to Robbs&#39; Blog</title>
+      <link href="/en/2026-07-01/welcome-to-robbs-en.html"/>
+      <url>/en/2026-07-01/welcome-to-robbs-en.html</url>
+      
+        <content type="html"><![CDATA[<p>Welcome to the English edition of <strong>Robbs’ Blog</strong>.</p><p>This site mirrors the Chinese blog at <a href="https://www.robbs.win/">robbs.win</a>, recording notes and practices on Linux, DevOps, architecture, PHP, Ruby, and frontend development.</p><blockquote><p>己所不欲，勿施于人 — <em>Do not impose on others what you yourself do not desire.</em></p></blockquote><h2 id="Topics"><a href="#Topics" class="headerlink" title="Topics"></a>Topics</h2><ul><li><strong>Linux &amp; Operations</strong> — everyday commands, Nginx, Shell, Ubuntu</li><li><strong>DevOps</strong> — deployment strategies, microservices, process managers</li><li><strong>Architecture</strong> — container design, operations standardization</li><li><strong>Development</strong> — PHP, Ruby on Rails, JavaScript</li></ul><p>English translations are being added gradually. Thank you for visiting.</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> About </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> About </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
