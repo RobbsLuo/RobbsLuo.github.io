@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Robbs的个人博客，记录平时在学习实践过程中的一些问题、方法、文档等等。"><meta name="keywords" content="Robbs,个人博客,Linux,运维,DevOps,架构,PHP,Ruby,Rails,JavaScript,Nginx,微服务,后端开发"><title>DDL/DML 评审：索引、锁、迁移风险一张表说清 | Robbs</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script src="https://www.googletagmanager.com/gtag/js?id=UA-87287972-1" async></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-87287972-1');
+</script><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><div class="darkmode-toggle">🌓</div><script>var prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+var toggle = document.querySelector('.darkmode-toggle');
+var html = document.querySelector('html');
+
+html.dataset.dark = localStorage.dark || prefersDarkMode.matches;
+
+toggle.addEventListener('click', () => {
+localStorage.dark = !(html.dataset.dark == 'true');
+html.dataset.dark = localStorage.dark;
+});</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">DDL/DML 评审：索引、锁、迁移风险一张表说清</h1><a id="logo" href="/.">Robbs</a><p class="description">己所不欲，勿施于人</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a><a href="/en/"><i class="fa fa-language"> English</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">DDL/DML 评审：索引、锁、迁移风险一张表说清</h1><div class="post-meta">2022-02-15<span> | </span><span class="category"><a href="/categories/Career/">Career</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1.1k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-clock-o"></i><span class="post-count"> 4</span><span class="post-meta-item-text"> 分钟</span></span></span></div><div class="post-content"><p>做 DAL 小组评审做久了，我发现大多数 SQL 问题其实就那么几类。索引没用对、锁没估准、迁移没想清楚后果。新来的人一开始评审总抓不住重点，东看一眼西看一眼，漏掉关键点。</p>
+<p>后来我把这些东西整理成了一张清单，评审的时候照着过。这篇就把这张清单摊开来讲讲。</p>
+<h2 id="DDL-评审清单"><a href="#DDL-评审清单" class="headerlink" title="DDL 评审清单"></a>DDL 评审清单</h2><h3 id="1-索引设计"><a href="#1-索引设计" class="headerlink" title="1. 索引设计"></a>1. 索引设计</h3><p>这是重头戏。80% 的慢查询都是索引没设计好。</p>
+<p><strong>要看的东西：</strong></p>
+<ul>
+<li>新加的字段，查询条件里会不会用到？会用到就该考虑加索引。</li>
+<li>加的索引基数（cardinality）够不够？一个 status 字段只有 0&#x2F;1 两个值，单独建索引基本没用。</li>
+<li>有没有联合索引可以替代多个单列索引？联合索引的列顺序很关键，等值条件在前，范围条件在后。</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 反例：单独给低基数字段建索引，基本没用</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_status <span class="keyword">ON</span> t_xxx_orders(status);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 正例：联合索引，高基数在前</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_uid_status <span class="keyword">ON</span> t_xxx_orders(user_id, status);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>有没有冗余索引？比如已经有 <code>(user_id, status)</code> 了，再单独建 <code>(user_id)</code> 就是浪费。</li>
+</ul>
+<h3 id="2-字段类型"><a href="#2-字段类型" class="headerlink" title="2. 字段类型"></a>2. 字段类型</h3><p>选错类型后患无穷。我见过太多用 <code>VARCHAR(255)</code> 装状态值的，明明 <code>TINYINT</code> 就够了。</p>
+<ul>
+<li>状态值、枚举：<code>TINYINT</code> 或 <code>SMALLINT</code>，别用字符串。</li>
+<li>金额：<code>DECIMAL</code>，别用 <code>FLOAT</code>，浮点精度问题够你喝一壶。</li>
+<li>时间：<code>DATETIME</code> 还是 <code>TIMESTAMP</code> 要想清楚，<code>TIMESTAMP</code> 有 2038 问题，但占用空间小一半。</li>
+</ul>
+<h3 id="3-锁的影响"><a href="#3-锁的影响" class="headerlink" title="3. 锁的影响"></a>3. 锁的影响</h3><p>MySQL 的 DDL 不是无锁的。</p>
+<ul>
+<li>MySQL 5.6 之前，<code>ALTER TABLE</code> 会锁全表，读写都阻塞。</li>
+<li>5.6 之后，加了 Online DDL，大部分操作可以”在线”做，但不是所有操作都支持。比如给一个已有的大表加 <code>NOT NULL</code> 列，照样锁表。</li>
+<li>大表（百万行以上）一律走 pt-online-schema-change 或 gh-ost，别裸跑 DDL。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gh-ost 比 pt-osc 更现代，触发器换成 binlog 订阅</span></span><br><span class="line">gh-ost \</span><br><span class="line">  --alter <span class="string">&quot;ADD COLUMN remark VARCHAR(200)&quot;</span> \</span><br><span class="line">  --database=t_xxx --table=orders \</span><br><span class="line">  --execute</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-迁移风险"><a href="#4-迁移风险" class="headerlink" title="4. 迁移风险"></a>4. 迁移风险</h3><p>这一块新人最容易忽略。加了字段之后，老代码会不会挂？</p>
+<p>举个例子：原来一个接口返回订单的 JSON，现在多了一个字段，下游服务反序列化的 POJO 里没有这个字段。大多数情况 Jackson 会忽略未知字段，但如果配置了 <code>FAIL_ON_UNKNOWN_PROPERTIES</code>，直接炸。</p>
+<p>DDL 上线前必须确认：</p>
+<ul>
+<li>新字段有没有默认值？</li>
+<li>老代码读到新字段会不会报错？</li>
+<li>下游服务有没有兼容性处理？</li>
+<li>回滚方案是什么？删字段还是留着不管？</li>
+</ul>
+<h2 id="DML-评审清单"><a href="#DML-评审清单" class="headerlink" title="DML 评审清单"></a>DML 评审清单</h2><h3 id="1-UPDATE-DELETE-的-WHERE-条件"><a href="#1-UPDATE-DELETE-的-WHERE-条件" class="headerlink" title="1. UPDATE &#x2F; DELETE 的 WHERE 条件"></a>1. UPDATE &#x2F; DELETE 的 WHERE 条件</h3><p>这是事故高发区。我见过有人写 <code>UPDATE t_xxx_orders SET status = 1;</code> 忘了加 <code>WHERE</code>，一秒钟全表更新，直接 gg。</p>
+<p>评审时必看：</p>
+<ul>
+<li>有没有 <code>WHERE</code> 条件？（听起来像废话，但真有人忘）</li>
+<li><code>WHERE</code> 条件走的是索引还是全表扫描？<code>EXPLAIN</code> 一下就知道了。</li>
+<li>影响行数预估多少？如果 <code>EXPLAIN</code> 的 <code>rows</code> 列显示百万级，得停下来想想。</li>
+<li>大批量更新要分批做，别一把梭。</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 大批量更新分批做，每批 1000 行</span></span><br><span class="line"><span class="keyword">UPDATE</span> t_xxx_orders</span><br><span class="line"><span class="keyword">SET</span> status <span class="operator">=</span> <span class="number">2</span></span><br><span class="line"><span class="keyword">WHERE</span> status <span class="operator">=</span> <span class="number">1</span> <span class="keyword">AND</span> id <span class="operator">&lt;=</span> <span class="number">1000000</span></span><br><span class="line">LIMIT <span class="number">1000</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-事务大小"><a href="#2-事务大小" class="headerlink" title="2. 事务大小"></a>2. 事务大小</h3><p>一个事务里更新的行数太多，会导致：</p>
+<ul>
+<li>undo log 膨胀，占空间。</li>
+<li>长事务阻塞其他查询，锁等待飙升。</li>
+<li>主从延迟拉大。</li>
+</ul>
+<p>原则：一个事务别超过 1 万行更新。超了就拆。</p>
+<h3 id="3-INSERT-批量-vs-单条"><a href="#3-INSERT-批量-vs-单条" class="headerlink" title="3. INSERT 批量 vs 单条"></a>3. INSERT 批量 vs 单条</h3><p>批量 <code>INSERT</code> 性能比循环单条 <code>INSERT</code> 高几十倍，这个不用多解释。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 反例：循环单条插入</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> t_xxx_log(user_id, action) <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">&#x27;login&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT INTO</span> t_xxx_log(user_id, action) <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">&#x27;login&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 正例：批量插入</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> t_xxx_log(user_id, action) <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">&#x27;login&#x27;</span>), (<span class="number">2</span>, <span class="string">&#x27;login&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="一张表总结"><a href="#一张表总结" class="headerlink" title="一张表总结"></a>一张表总结</h2><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>DDL</th>
+<th>DML</th>
+<th>严重程度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WHERE 条件走索引？</td>
+<td>-</td>
+<td>必查</td>
+<td>致命</td>
+</tr>
+<tr>
+<td>锁表风险？</td>
+<td>必查</td>
+<td>看情况</td>
+<td>高</td>
+</tr>
+<tr>
+<td>字段类型合理？</td>
+<td>必查</td>
+<td>-</td>
+<td>中</td>
+</tr>
+<tr>
+<td>影响行数可控？</td>
+<td>必查</td>
+<td>必查</td>
+<td>高</td>
+</tr>
+<tr>
+<td>回滚方案？</td>
+<td>必查</td>
+<td>必查</td>
+<td>致命</td>
+</tr>
+<tr>
+<td>下游兼容性？</td>
+<td>必查</td>
+<td>看情况</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<h2 id="最后说一句"><a href="#最后说一句" class="headerlink" title="最后说一句"></a>最后说一句</h2><p>清单这东西，关键是每次都用，不能挑着用。</p>
+<p>评审的目的不是挑毛病，是帮你把那些”应该没事”变成”确定没事”。</p>
+<p>我见过太多人觉得”这条 SQL 简单，应该没问题”，然后就出事了。简单的东西恰恰最容易翻车，因为你放松了警惕。养成习惯，每次评审都照着清单过一遍，不管 SQL 长什么样。</p>
+</div><script type="text/javascript" src="/js/share.js?v=1.0.0" async></script><a class="article-share-link" data-url="https://www.robbs.win/2022-02-15/DDL-DML-Review-Checklist.html" data-id="cuidM_bLpUYrL-mTwpyLFwrD9" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIklEQVR42u3ay07EMAwF0P7/T4PECgnaubZbxCSnq1ERSU4XVvw4jvj5+HrOfp+9+f7+52rX/3s88WBgYLwt4+Py6R09X3OyMgYGxm6MJMhew+4N1vnZMDAwMJKD3gXI98XAwMB4IuDOSRgYGBjVhDN5P6mSPZiLY2BgvCFjfsl77vef9jcwMDD+JaNX0E+uj8lRkstidCoMDIylGWcBLhmSyLecl96icIyBgbENo5cuJsltr6iXr4+BgbE2ozd42vsEyV/LLQEMDIylGdXh0cloV57uVnfEwMDYgZEfvRdGe1fAQtsAAwNjA8akoJbfPSejYC9CPwYGxjaMXtPxrkGxagvhl04sBgbG0oxeSjlJX6sFuBfvMTAwlmZU25bVobHquFi1eYmBgYFx18Z5kzIP0M2BewwMjCUYedDsleEKjclqCo2BgbEoo3f0pCSXr3wDFQMDYwNGNYk9xk+1qPfiQ2BgYCzNqC7UK6tNxsXKDVEMDIzlGL3weh2gq5jkM5XncDEwMJZj5Ne1PE2dkMpUDAyMpRnJZpNRsEk7s5xCY2BgLMqYNCbza2J1RKPcEMXAwFia0SvlJ0OlTxy0Wv7DwMBYiZEE2buGxvJPVh6fxcDA2ICRNxeTxPWJ0Y1C7RADA2NjRrWFUF0nv8liYGBg5Nvn6WiSlCaXxdP/xcDA2IAxufzlQTkn5eEYAwNjB0Y1gcxHuyaXwnz4AwMDY2nGJ68SGQZypH2/AAAAAElFTkSuQmCC">分享</a><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Career/" rel="tag">Career</a></li></ul></div><div class="post-nav"><a class="pre" href="/2022-05-17/Java-DAL-SDK-HikariCP.html">跨语言 SDK（一）：Java 版用 HikariCP 把底子打好</a><a class="next" href="/2021-12-14/DB-Change-Review.html">DAL 小组：数据库变更审核怎么做</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="https://www.robbs.win"/></form></div><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>己所不欲，勿施于人</p><a class="info-icon" href="mailto:work@robbs.vip" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/RobbsLuo" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Architect/">Architect</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Career/">Career</a><span class="category-list-count">36</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DevOps/">DevOps</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Develop/">Develop</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rails/">Rails</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Server/">Server</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Software/">Software</a><span class="category-list-count">6</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/Career/" style="font-size: 15px;">Career</a> <a href="/tags/Claude-Code/" style="font-size: 15px;">Claude Code</a> <a href="/tags/AI-%E5%B7%A5%E7%A8%8B%E5%8C%96/" style="font-size: 15px;">AI 工程化</a> <a href="/tags/Agent/" style="font-size: 15px;">Agent</a> <a href="/tags/Aliyun/" style="font-size: 15px;">Aliyun</a> <a href="/tags/IPv6/" style="font-size: 15px;">IPv6</a> <a href="/tags/CLAUDE-md/" style="font-size: 15px;">CLAUDE.md</a> <a href="/tags/AirFlow/" style="font-size: 15px;">AirFlow</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97/" style="font-size: 15px;">数据清洗</a> <a href="/tags/Container/" style="font-size: 15px;">Container</a> <a href="/tags/Architect/" style="font-size: 15px;">Architect</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/Yii2/" style="font-size: 15px;">Yii2</a> <a href="/tags/DynamoDB/" style="font-size: 15px;">DynamoDB</a> <a href="/tags/Software/" style="font-size: 15px;">Software</a> <a href="/tags/ELK/" style="font-size: 15px;">ELK</a> <a href="/tags/DevOps/" style="font-size: 15px;">DevOps</a> <a href="/tags/Logging/" style="font-size: 15px;">Logging</a> <a href="/tags/AWS-ECS/" style="font-size: 15px;">AWS ECS</a> <a href="/tags/Docker/" style="font-size: 15px;">Docker</a> <a href="/tags/docker-compose/" style="font-size: 15px;">docker-compose</a> <a href="/tags/Retrospective/" style="font-size: 15px;">Retrospective</a> <a href="/tags/Reflection/" style="font-size: 15px;">Reflection</a> <a href="/tags/%E5%85%A8%E6%A0%88/" style="font-size: 15px;">全栈</a> <a href="/tags/%E5%A4%8D%E7%9B%98/" style="font-size: 15px;">复盘</a> <a href="/tags/%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F/" style="font-size: 15px;">用户画像</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/Server/" style="font-size: 15px;">Server</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93/" style="font-size: 15px;">数据管道</a> <a href="/tags/Humanity/" style="font-size: 15px;">Humanity</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/Supervisord/" style="font-size: 15px;">Supervisord</a> <a href="/tags/Shadowsocks/" style="font-size: 15px;">Shadowsocks</a> <a href="/tags/JavaScript/" style="font-size: 15px;">JavaScript</a> <a href="/tags/Currying/" style="font-size: 15px;">Currying</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Shell/" style="font-size: 15px;">Shell</a> <a href="/tags/Async/" style="font-size: 15px;">Async</a> <a href="/tags/Deployment/" style="font-size: 15px;">Deployment</a> <a href="/tags/MicroService/" style="font-size: 15px;">MicroService</a> <a href="/tags/Jenkins/" style="font-size: 15px;">Jenkins</a> <a href="/tags/GitLab-CI/" style="font-size: 15px;">GitLab CI</a> <a href="/tags/GitHub-Actions/" style="font-size: 15px;">GitHub Actions</a> <a href="/tags/OAuth/" style="font-size: 15px;">OAuth</a> <a href="/tags/OSX/" style="font-size: 15px;">OSX</a> <a href="/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/tags/Process-Manager/" style="font-size: 15px;">Process Manager</a> <a href="/tags/AWS/" style="font-size: 15px;">AWS</a> <a href="/tags/Security/" style="font-size: 15px;">Security</a> <a href="/tags/IAM/" style="font-size: 15px;">IAM</a> <a href="/tags/Vitest/" style="font-size: 15px;">Vitest</a> <a href="/tags/Playwright/" style="font-size: 15px;">Playwright</a> <a href="/tags/ESLint/" style="font-size: 15px;">ESLint</a> <a href="/tags/%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87/" style="font-size: 15px;">测试覆盖率</a> <a href="/tags/Ruby/" style="font-size: 15px;">Ruby</a> <a href="/tags/Cache/" style="font-size: 15px;">Cache</a> <a href="/tags/Rails/" style="font-size: 15px;">Rails</a> <a href="/tags/Skill/" style="font-size: 15px;">Skill</a> <a href="/tags/SQS/" style="font-size: 15px;">SQS</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%BC%95%E6%93%8E/" style="font-size: 15px;">计算引擎</a> <a href="/tags/%E5%8F%AF%E5%A4%8D%E7%AE%97/" style="font-size: 15px;">可复算</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E6%9E%B6%E6%9E%84/" style="font-size: 15px;">工程架构</a> <a href="/tags/Siege/" style="font-size: 15px;">Siege</a> <a href="/tags/PPA/" style="font-size: 15px;">PPA</a> <a href="/tags/Sources/" style="font-size: 15px;">Sources</a> <a href="/tags/Spring-Boot/" style="font-size: 15px;">Spring Boot</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/%E5%90%8E%E7%AB%AF%E6%9E%B6%E6%9E%84/" style="font-size: 15px;">后端架构</a> <a href="/tags/Terraform/" style="font-size: 15px;">Terraform</a> <a href="/tags/IaC/" style="font-size: 15px;">IaC</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/Refactor/" style="font-size: 15px;">Refactor</a> <a href="/tags/%E7%BB%84%E4%BB%B6%E5%BA%93/" style="font-size: 15px;">组件库</a> <a href="/tags/UMD/" style="font-size: 15px;">UMD</a> <a href="/tags/%E8%B7%A8%E5%B7%A5%E5%85%B7%E5%A4%8D%E7%94%A8/" style="font-size: 15px;">跨工具复用</a> <a href="/tags/VIPS/" style="font-size: 15px;">VIPS</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 15px;">可视化</a> <a href="/tags/Swap/" style="font-size: 15px;">Swap</a> <a href="/tags/rbenv/" style="font-size: 15px;">rbenv</a> <a href="/tags/brew/" style="font-size: 15px;">brew</a> <a href="/tags/ruby/" style="font-size: 15px;">ruby</a> <a href="/tags/SpringBoot/" style="font-size: 15px;">SpringBoot</a> <a href="/tags/Vite/" style="font-size: 15px;">Vite</a> <a href="/tags/Webpack/" style="font-size: 15px;">Webpack</a> <a href="/tags/Mina/" style="font-size: 15px;">Mina</a> <a href="/tags/Deploy/" style="font-size: 15px;">Deploy</a> <a href="/tags/React-19/" style="font-size: 15px;">React 19</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/" style="font-size: 15px;">技术选型</a> <a href="/tags/GEM/" style="font-size: 15px;">GEM</a> <a href="/tags/Monorepo/" style="font-size: 15px;">Monorepo</a> <a href="/tags/pnpm/" style="font-size: 15px;">pnpm</a> <a href="/tags/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96/" style="font-size: 15px;">前端工程化</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026-05-18/Eleven-Year-FullStack-Retrospective.html">11 年，一家公司：我的全栈技术体系复盘</a></li><li class="post-list-item"><a class="post-list-link" href="/2026-03-15/AI-Coding-Engineering-Retrospective.html">理财线两年：AI 编码工程化这套怎么沉淀下来的</a></li><li class="post-list-item"><a class="post-list-link" href="/2025-09-15/CLAUDE-md-Agent-Orchestration.html">Claude Code 进团队：CLAUDE.md 和 Agent 怎么编排</a></li><li class="post-list-item"><a class="post-list-link" href="/2025-07-15/Webpack-to-Vite-Lessons.html">迁移复盘：从 Webpack 切到 Vite 踩过的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2025-06-17/Reusable-Migration-Skills.html">迁移 Skill：沉淀出 10+ 个能复用的东西</a></li><li class="post-list-item"><a class="post-list-link" href="/2025-05-14/AI-Migration-Agent.html">UI 迁移 Agent：用 Claude Code 把 13 个工具一起迁了</a></li><li class="post-list-item"><a class="post-list-link" href="/2025-04-15/Why-Migrate-React-19.html">为什么决定把 Vue 迁到 React 19</a></li><li class="post-list-item"><a class="post-list-link" href="/2025-02-17/Quality-Baseline-Vitest-Playwright.html">质量基线：Vitest + Playwright + ESLint 把覆盖率拉到 90%</a></li><li class="post-list-item"><a class="post-list-link" href="/2024-12-16/UMD-Component-Library.html">组件库：10+ 组件怎么同时支持 UMD 和组件包</a></li><li class="post-list-item"><a class="post-list-link" href="/2024-10-15/Reproducible-Calculation-Engine.html">金融计算引擎：让每张报表都能复算</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Robbs.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><link rel="stylesheet" type="text/css" href="/css/search.css?v=1.0.0"><script type="text/javascript" src="/js/search.js?v=1.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+  search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="复制成功！"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
