@@ -1,0 +1,50 @@
+title: Robbs
+subtitle: 己所不欲，勿施于人
+description: Robbs的个人博客，记录平时在学习实践过程中的一些问题、方法、文档等等。
+keywords: Robbs,个人博客,Linux,运维,DevOps,架构,PHP,Ruby,Rails,JavaScript,Nginx,微服务,后端开发
+author: Robbs Luo
+language: en
+timezone: Asia/Shanghai
+url: https://www.robbs.win/en/
+root: /en/
+permalink: ':year-:month-:day/:title.html'
+permalink_defaults: null
+source_dir: source/en
+public_dir: public/en
+tag_dir: tags
+archive_dir: archives
+category_dir: categories
+code_dir: downloads/code
+i18n_dir: ':lang'
+skip_render: null
+new_post_name: ':title.md'
+default_layout: post
+titlecase: false
+external_link: true
+filename_case: 0
+render_drafts: false
+post_asset_folder: true
+relative_link: false
+future: true
+highlight:
+  enable: true
+  line_number: true
+  auto_detect: false
+  tab_replace: null
+default_category: uncategorized
+category_map: null
+tag_map: null
+date_format: YYYY-MM-DD
+time_format: HH:mm:ss
+per_page: 10
+pagination_dir: page
+theme: maupassant
+deploy:
+  type: git
+  repo: git@github.com:RobbsLuo/RobbsLuo.github.io.git
+  branch: master
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub: null
